@@ -17,31 +17,46 @@ export type Database = {
       dosha_assessments: {
         Row: {
           answers: Json
+          confidence: number | null
           created_at: string
           dominant_dosha: string
           id: string
           kapha_score: number
+          key_traits: Json | null
           pitta_score: number
+          prediction_source: string | null
+          secondary_confidence: number | null
+          secondary_dosha: string | null
           user_id: string
           vata_score: number
         }
         Insert: {
           answers?: Json
+          confidence?: number | null
           created_at?: string
           dominant_dosha: string
           id?: string
           kapha_score?: number
+          key_traits?: Json | null
           pitta_score?: number
+          prediction_source?: string | null
+          secondary_confidence?: number | null
+          secondary_dosha?: string | null
           user_id: string
           vata_score?: number
         }
         Update: {
           answers?: Json
+          confidence?: number | null
           created_at?: string
           dominant_dosha?: string
           id?: string
           kapha_score?: number
+          key_traits?: Json | null
           pitta_score?: number
+          prediction_source?: string | null
+          secondary_confidence?: number | null
+          secondary_dosha?: string | null
           user_id?: string
           vata_score?: number
         }

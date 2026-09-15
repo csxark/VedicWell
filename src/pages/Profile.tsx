@@ -24,6 +24,10 @@ interface DoshaAssessment {
   vata_score: number;
   pitta_score: number;
   kapha_score: number;
+  confidence?: number | null;
+  secondary_dosha?: string | null;
+  secondary_confidence?: number | null;
+  prediction_source?: string | null;
   created_at: string;
 }
 
@@ -322,13 +326,23 @@ const Profile = () => {
                                 </span>
                               </div>
                               <div>
-                                <div className={`font-semibold capitalize ${getDoshaTextColor(assessment.dominant_dosha)}`}>
-                                  {assessment.dominant_dosha} Dominant
+                                <div className={`font-semibold capitalize ${getDoshaTextColor(assessment.dominant_dosha)} flex items-center gap-2`}>
+                                  <span>{assessment.dominant_dosha} Dominant</span>
+                                  {assessment.confidence != null && (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-medium">
+                                      {Math.round(assessment.confidence * 100)}% Match
+                                    </span>
+                                  )}
                                 </div>
                                 <div className="text-sm text-muted-foreground">
-                                  V: {Math.round((assessment.vata_score / 12) * 100)}% | 
-                                  P: {Math.round((assessment.pitta_score / 12) * 100)}% | 
-                                  K: {Math.round((assessment.kapha_score / 12) * 100)}%
+                                  {assessment.secondary_dosha ? (
+                                    <span>Secondary: {assessment.secondary_dosha} {assessment.secondary_confidence ? `(${Math.round(assessment.secondary_confidence * 100)}%)` : ""}</span>
+                                  ) : (
+                                    (() => {
+                                      const total = (assessment.vata_score + assessment.pitta_score + assessment.kapha_score) || 12;
+                                      return `V: ${Math.round((assessment.vata_score / total) * 100)}% | P: ${Math.round((assessment.pitta_score / total) * 100)}% | K: ${Math.round((assessment.kapha_score / total) * 100)}%`;
+                                    })()
+                                  )}
                                 </div>
                               </div>
                             </div>
