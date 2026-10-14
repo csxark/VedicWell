@@ -19,10 +19,13 @@ import {
   type Dosha,
 } from "@/lib/doshaAssessment";
 import { predictDosha } from "@/lib/doshaApi";
+import { saveAssessmentToSupabase, saveGuestAssessmentToSupabase } from "@/lib/doshaService";
+import { writeGuestCache, markGuestCacheSynced } from "@/lib/guestDoshaCache";
+
 
 const Assessment = () => {
   const navigate = useNavigate();
-  const { user, updateProfile } = useAuth();
+  const { user, session, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Partial<AssessmentAnswers>>({});
@@ -61,18 +64,18 @@ const Assessment = () => {
     try {
       const fullAnswers = answers as AssessmentAnswers;
 
-      // Call the Railway ML backend (falls back to local scoring automatically)
-      const { result, source, error } = await predictDosha(fullAnswers);
+      // 1. Call the ML prediction endpoint, securely sending user's session token if authenticated
+      const token = session?.access_token;
+      const { result, source, saved, error: apiError } = await predictDosha(fullAnswers, token);
 
-      if (error) {
-        console.warn("ML API fallback:", error);
+      if (apiError) {
+        console.warn("ML API notice:", apiError);
       }
 
       setPredictionResult(result);
       setPredictionSource(source);
 
-      // Compute simple count scores for backward compatibility
-      const localScores = scoreLocally(fullAnswers);
+      // Compute simple count scores
       const vataCount = QUESTIONS.filter(
         (q) => q.options.find((o) => o.value === fullAnswers[q.id])?.dosha === "Vata",
       ).length;
@@ -83,59 +86,89 @@ const Assessment = () => {
         (q) => q.options.find((o) => o.value === fullAnswers[q.id])?.dosha === "Kapha",
       ).length;
 
-      // Save to Supabase if authenticated
+      // 2. Persist or cache depending on auth state
       if (user) {
-        try {
-          // Compute percentages from ML confidence values
-          const totalConf =
-            result.confidence +
-            result.secondaryConfidence +
-            Math.max(0, 1 - result.confidence - result.secondaryConfidence);
+        // ── Authenticated: persist to Supabase ──────────────────────────────
+        const dominantDosha = result.primaryDosha.toLowerCase() as "vata" | "pitta" | "kapha";
 
-          const confMap: Record<string, number> = {};
-          confMap[result.primaryDosha] = result.confidence;
-          confMap[result.secondaryDosha] = result.secondaryConfidence;
-          const thirdDosha = (["Vata", "Pitta", "Kapha"] as Dosha[]).find(
-            (d) => d !== result.primaryDosha && d !== result.secondaryDosha,
-          )!;
-          confMap[thirdDosha] = Math.max(0, 1 - result.confidence - result.secondaryConfidence);
-
-          const vataPct = Math.round((confMap["Vata"] / totalConf) * 100);
-          const pittaPct = Math.round((confMap["Pitta"] / totalConf) * 100);
-          const kaphaPct = 100 - vataPct - pittaPct;
-
-          await supabase.from("dosha_assessments").insert({
-            user_id: user.id,
-            dominant_dosha: result.primaryDosha.toLowerCase(),
-            vata_score: vataCount,
-            pitta_score: pittaCount,
-            kapha_score: kaphaCount,
-            answers: fullAnswers,
-            confidence: result.confidence,
-            secondary_dosha: result.secondaryDosha,
-            secondary_confidence: result.secondaryConfidence,
-            prediction_source: source,
-            key_traits: result.keyTraits ?? null,
-          });
-
-          await updateProfile({
-            dominant_dosha: result.primaryDosha.toLowerCase() as "vata" | "pitta" | "kapha",
-            vata_percentage: vataPct,
-            pitta_percentage: pittaPct,
-            kapha_percentage: kaphaPct,
-          });
-
+        // If the backend already saved it via token, just notify and refresh
+        if (saved) {
           toast({
             title: "Assessment saved!",
             description: `Your dosha profile has been updated — ${result.primaryDosha} dominant.`,
           });
-        } catch (error) {
-          console.error("Error saving assessment:", error);
-          toast({
-            title: "Assessment complete",
-            description: "Your results are ready, but we couldn't save them. Sign up to save!",
+          if (refreshProfile) {
+            await refreshProfile();
+          }
+        } else {
+          // Double-safety: persist directly to Supabase through doshaService
+          const { error: saveError } = await saveAssessmentToSupabase({
+            userId: user.id,
+            dominantDosha,
+            vataScore: vataCount,
+            pittaScore: pittaCount,
+            kaphaScore: kaphaCount,
+            answers: fullAnswers,
+            confidence: result.confidence,
+            secondaryDosha: result.secondaryDosha,
+            secondaryConfidence: result.secondaryConfidence,
+            keyTraits: result.keyTraits,
+            predictionSource: source,
           });
+
+          if (saveError) {
+            console.error("Failed to save assessment to Supabase:", saveError);
+            toast({
+              title: "Assessment complete",
+              description: "Could not save to your profile. Please check your connection.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Assessment saved!",
+              description: `Your dosha profile has been updated — ${result.primaryDosha} dominant.`,
+            });
+            if (refreshProfile) {
+              await refreshProfile();
+            }
+          }
         }
+      } else {
+        // ── Guest: cache result in localStorage + attempt Supabase insert ──
+        const cached = writeGuestCache({
+          primaryDosha: result.primaryDosha,
+          confidence: result.confidence,
+          secondaryDosha: result.secondaryDosha,
+          secondaryConfidence: result.secondaryConfidence,
+          keyTraits: result.keyTraits,
+          answers: fullAnswers,
+          vataScore: vataCount,
+          pittaScore: pittaCount,
+          kaphaScore: kaphaCount,
+        });
+
+        // Fire background persistence to Supabase (guest_session_id)
+        const guestDom = result.primaryDosha.toLowerCase() as "vata" | "pitta" | "kapha";
+        saveGuestAssessmentToSupabase({
+          guestSessionId: cached.guestSessionId,
+          dominantDosha: guestDom,
+          vataScore: vataCount,
+          pittaScore: pittaCount,
+          kaphaScore: kaphaCount,
+          answers: fullAnswers,
+          confidence: result.confidence,
+          secondaryDosha: result.secondaryDosha,
+          secondaryConfidence: result.secondaryConfidence,
+          keyTraits: result.keyTraits,
+          predictionSource: source,
+        }).then(({ id }) => {
+          if (id) {
+            markGuestCacheSynced(id);
+          }
+        }).catch((err) => {
+          console.warn("Guest background persistence notice:", err);
+        });
+        // Result is shown immediately; user can sign up below to persist it
       }
     } catch (error) {
       console.error("Assessment submission failed:", error);

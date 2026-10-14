@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { LotusIcon, MandalaIcon } from "@/components/icons/SacredIcons";
+import { readGuestCache, type GuestDoshaCache } from "@/lib/guestDoshaCache";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -16,11 +17,13 @@ const nameSchema = z.string().min(2, "Name must be at least 2 characters").optio
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [guestCache, setGuestCache] = useState<GuestDoshaCache | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerificationSent, setIsVerificationSent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { signIn, signUp, user } = useAuth();
@@ -30,6 +33,11 @@ const Auth = () => {
   useEffect(() => {
     if (user) {
       navigate("/dashboard");
+    } else {
+      const cached = readGuestCache();
+      if (cached) {
+        setGuestCache(cached);
+      }
     }
   }, [user, navigate]);
 
@@ -66,7 +74,7 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, fullName || undefined);
+        const { data, error } = await signUp(email, password, fullName || undefined);
         if (error) {
           if (error.message.includes("already registered")) {
             toast({
@@ -77,10 +85,17 @@ const Auth = () => {
           } else {
             throw error;
           }
-        } else {
+        } else if (data?.session) {
           toast({
-            title: "Check your email",
-            description: "We've sent you a verification link. Please check your email to complete signup.",
+            title: "Account created!",
+            description: "Welcome to VedicWell. Entering your dashboard...",
+          });
+          navigate("/dashboard", { replace: true });
+        } else {
+          setIsVerificationSent(true);
+          toast({
+            title: "Verification email sent",
+            description: "Please check your inbox. Clicking the link will take you directly to your dashboard.",
           });
         }
       } else {
@@ -149,13 +164,53 @@ const Auth = () => {
         {/* Auth Card */}
         <div className="glass-card rounded-3xl p-8 shadow-glow">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={isSignUp ? "signup" : "signin"}
-              initial={{ opacity: 0, x: isSignUp ? 20 : -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: isSignUp ? -20 : 20 }}
-              transition={{ duration: 0.3 }}
-            >
+            {isVerificationSent ? (
+              <motion.div
+                key="verification"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center py-2"
+              >
+                <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-secondary" />
+                </div>
+                <h2 className="font-display text-2xl text-foreground mb-2">Check Your Email</h2>
+                <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+                  We've sent a verification link to <strong className="text-foreground">{email}</strong>.
+                  Click the link in your email and you will be taken directly to your dashboard.
+                </p>
+                <div className="p-4 rounded-xl bg-muted/40 text-xs text-muted-foreground mb-6">
+                  Can't find the email? Check your spam folder or return to sign in once confirmed.
+                </div>
+                <div className="space-y-3">
+                  <Button
+                    variant="saffron"
+                    className="w-full"
+                    onClick={() => {
+                      setIsVerificationSent(false);
+                      setIsSignUp(false);
+                    }}
+                  >
+                    Go to Sign In
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full text-xs"
+                    onClick={() => setIsVerificationSent(false)}
+                  >
+                    Use a different email
+                  </Button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={isSignUp ? "signup" : "signin"}
+                initial={{ opacity: 0, x: isSignUp ? 20 : -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: isSignUp ? -20 : 20 }}
+                transition={{ duration: 0.3 }}
+              >
               <div className="text-center mb-8">
                 <h1 className="font-display text-3xl text-foreground mb-2">
                   {isSignUp ? "Begin Your Journey" : "Welcome Back"}
@@ -166,6 +221,20 @@ const Auth = () => {
                     : "Sign in to continue your wellness journey"}
                 </p>
               </div>
+
+              {guestCache && (
+                <div className="mb-6 p-4 rounded-2xl bg-secondary/10 border border-secondary/20 flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+                  <div className="text-left text-xs leading-relaxed">
+                    <p className="font-semibold text-foreground">
+                      {guestCache.primaryDosha} Assessment Ready to Sync
+                    </p>
+                    <p className="text-muted-foreground mt-0.5">
+                      {isSignUp ? "Create an account" : "Sign in"} to automatically link your assessment results, recommendations, and traits to your permanent profile.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {isSignUp && (
@@ -279,7 +348,8 @@ const Auth = () => {
                 </p>
               </div>
             </motion.div>
-          </AnimatePresence>
+          )}
+        </AnimatePresence>
         </div>
 
         {/* Back to home */}

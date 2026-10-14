@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/landing/Footer";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { LotusIcon, SunIcon, LeafIcon } from "@/components/icons/SacredIcons";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { fetchLatestUserDosha, type UserDoshaRecord } from "@/lib/doshaService";
 import {
   Sun,
   Moon,
@@ -95,8 +96,32 @@ const weeklyProgress = [
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
-  
-  const doshaType = (profile?.dominant_dosha?.toLowerCase() || "pitta") as "vata" | "pitta" | "kapha";
+  const [latestAssessment, setLatestAssessment] = useState<UserDoshaRecord | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    let isCurrent = true;
+    setLatestAssessment(null);
+
+    fetchLatestUserDosha(user.id).then((record) => {
+      if (isCurrent) {
+        setLatestAssessment(record);
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [user?.id]);
+
+  // Derive current dosha dynamically from latest assessment, with profile fallback
+  const doshaType = (
+    latestAssessment?.dominantDosha ||
+    profile?.dominant_dosha?.toLowerCase() ||
+    "pitta"
+  ) as "vata" | "pitta" | "kapha";
+
   const doshaData = doshaRecommendations[doshaType];
   const DoshaIcon = doshaData.icon;
 
@@ -146,14 +171,30 @@ const Dashboard = () => {
               </div>
 
               {/* Dosha Badge */}
-              <div className="flex items-center gap-4">
-                <div className={`px-6 py-3 rounded-2xl bg-gradient-to-r ${doshaData.color} text-white font-semibold shadow-soft`}>
-                  <span className="flex items-center gap-2">
-                    <DoshaIcon className="w-5 h-5" />
-                    {doshaType.charAt(0).toUpperCase() + doshaType.slice(1)} Dosha
-                  </span>
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className={`px-6 py-3 rounded-2xl bg-gradient-to-r ${doshaData.color} text-white font-semibold shadow-soft flex items-center gap-2`}>
+                  <DoshaIcon className="w-5 h-5" />
+                  <span>{doshaType.charAt(0).toUpperCase() + doshaType.slice(1)} Dosha</span>
+                  {latestAssessment?.confidence && (
+                    <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-normal ml-1">
+                      {Math.round(latestAssessment.confidence * 100)}% Match
+                    </span>
+                  )}
                 </div>
-                {profile?.vata_percentage != null && (
+                {latestAssessment?.secondaryDosha && (
+                  <div className="glass-card px-4 py-3 rounded-xl text-sm text-muted-foreground flex items-center gap-1.5">
+                    <span className="text-xs uppercase tracking-wider">Secondary:</span>
+                    <span className="font-semibold text-foreground capitalize">
+                      {latestAssessment.secondaryDosha}
+                    </span>
+                    {latestAssessment.secondaryConfidence && (
+                      <span className="text-xs">
+                        ({Math.round(latestAssessment.secondaryConfidence * 100)}%)
+                      </span>
+                    )}
+                  </div>
+                )}
+                {profile?.vata_percentage != null && !latestAssessment?.secondaryDosha && (
                   <div className="hidden md:flex glass-card px-4 py-3 rounded-xl gap-3 text-sm text-muted-foreground">
                     <span>V:{profile.vata_percentage}%</span>
                     <span>P:{profile.pitta_percentage}%</span>

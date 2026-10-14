@@ -17,47 +17,56 @@ export type Database = {
       dosha_assessments: {
         Row: {
           answers: Json
+          claimed_at: string | null
           confidence: number | null
           created_at: string
           dominant_dosha: string
+          guest_session_id: string | null
           id: string
           kapha_score: number
           key_traits: Json | null
+          original_guest_session_id: string | null
           pitta_score: number
           prediction_source: string | null
           secondary_confidence: number | null
           secondary_dosha: string | null
-          user_id: string
+          user_id: string | null
           vata_score: number
         }
         Insert: {
           answers?: Json
+          claimed_at?: string | null
           confidence?: number | null
           created_at?: string
           dominant_dosha: string
+          guest_session_id?: string | null
           id?: string
           kapha_score?: number
           key_traits?: Json | null
+          original_guest_session_id?: string | null
           pitta_score?: number
           prediction_source?: string | null
           secondary_confidence?: number | null
           secondary_dosha?: string | null
-          user_id: string
+          user_id?: string | null
           vata_score?: number
         }
         Update: {
           answers?: Json
+          claimed_at?: string | null
           confidence?: number | null
           created_at?: string
           dominant_dosha?: string
+          guest_session_id?: string | null
           id?: string
           kapha_score?: number
           key_traits?: Json | null
+          original_guest_session_id?: string | null
           pitta_score?: number
           prediction_source?: string | null
           secondary_confidence?: number | null
           secondary_dosha?: string | null
-          user_id?: string
+          user_id?: string | null
           vata_score?: number
         }
         Relationships: []

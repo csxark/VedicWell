@@ -127,4 +127,46 @@ describe("Dosha Assessment Integration", () => {
     const health = await checkHealth();
     expect(health.ok).toBe(false);
   });
+
+  it("should generate personalized recommendations dynamically for each dosha", async () => {
+    const { getRecommendationsForDosha } = await import("../lib/doshaRecommendations");
+
+    const vataRecs = getRecommendationsForDosha("vata");
+    expect(vataRecs.dominantDosha).toBe("Vata");
+    expect(vataRecs.element).toBe("Air & Space");
+    expect(vataRecs.dietGuidance.length).toBeGreaterThanOrEqual(3);
+    expect(vataRecs.lifestyleRituals.length).toBeGreaterThanOrEqual(3);
+    expect(vataRecs.foodsToFavor).toContain("Sweet potatoes");
+
+    const pittaRecs = getRecommendationsForDosha("pitta", "Vata");
+    expect(pittaRecs.dominantDosha).toBe("Pitta");
+    expect(pittaRecs.secondaryDosha).toBe("Vata");
+    expect(pittaRecs.element).toBe("Fire & Water");
+    expect(pittaRecs.foodsToFavor).toContain("Cucumbers");
+
+    const kaphaRecs = getRecommendationsForDosha("kapha");
+    expect(kaphaRecs.dominantDosha).toBe("Kapha");
+    expect(kaphaRecs.element).toBe("Earth & Water");
+    expect(kaphaRecs.foodsToFavor).toContain("Ginger tea");
+  });
+
+  it("should handle predictDosha with optional token parameter gracefully", async () => {
+    const testAnswers: AssessmentAnswers = {
+      bodyFrame: "Thin and Lean",
+      paceOfWork: "Fast",
+      bodyEnergy: "Low",
+      hungerPattern: "Skips Meals",
+      hairType: "Dry",
+      sleepPattern: "Light Sleeper",
+      mentalActivity: "Restless",
+      voiceQuality: "Fast",
+      jointStructure: "Light",
+      skinType: "Dry",
+      bodyOdor: "Mild",
+    };
+
+    const responseWithToken = await predictDosha(testAnswers, "dummy_test_token_123");
+    expect(responseWithToken.result.primaryDosha).toBe("Vata");
+    expect(responseWithToken.source).toBe("local");
+  });
 });

@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageTransition } from "@/components/PageTransition";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 import Assessment from "./pages/Assessment";
 import Dashboard from "./pages/Dashboard";
 import Nutrition from "./pages/Nutrition";
@@ -28,6 +29,7 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/assessment" element={<PageTransition><Assessment /></PageTransition>} />
         <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
         <Route path="/nutrition" element={<PageTransition><Nutrition /></PageTransition>} />

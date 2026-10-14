@@ -1,21 +1,45 @@
 /**
- * Dosha Prediction API Client
+ * Dosha Prediction & Backend API Client
  *
- * Calls the Railway-hosted FastAPI backend for XGBoost model inference.
+ * Calls the FastAPI backend for XGBoost model inference, authenticated
+ * assessment persistence, dynamic current DOSA retrieval, and recommendation models.
+ * Automatically attaches Supabase access tokens when available.
  * Falls back to local scoring when the backend is unavailable.
  */
 
 import type { AssessmentAnswers, PredictionResult } from "./doshaAssessment";
 import { scoreLocally } from "./doshaAssessment";
+import { getRecommendationsForDosha, type DoshaRecommendations } from "./doshaRecommendations";
 
 const DOSHA_API_URL = (
   import.meta.env.VITE_DOSHA_API_URL as string | undefined
 )?.replace(/\/$/, "") ?? "";
 
+export interface PredictResponse {
+  result: PredictionResult;
+  source: "api" | "local";
+  saved?: boolean;
+  assessmentId?: string;
+  error?: string;
+}
+
+export interface BackendCurrentDosha {
+  userId: string;
+  dominantDosha: "Vata" | "Pitta" | "Kapha";
+  confidence?: number;
+  secondaryDosha?: string;
+  secondaryConfidence?: number;
+  vataScore?: number;
+  pittaScore?: number;
+  kaphaScore?: number;
+  keyTraits?: string[];
+  assessmentId?: string;
+  assessedAt?: string;
+}
+
 /**
  * Wake Railway from cold sleep by polling the health endpoint.
  * Retries up to `maxRetries` times with increasing delays.
- * Returns true when the backend is confirmed alive.
  */
 async function wakeBackend(maxRetries = 3): Promise<boolean> {
   if (!DOSHA_API_URL) return false;
@@ -24,14 +48,12 @@ async function wakeBackend(maxRetries = 3): Promise<boolean> {
     try {
       const res = await fetch(`${DOSHA_API_URL}/health`, {
         method: "GET",
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(8_000),
       });
       if (res.ok) return true;
-      // 502/503 = Railway proxy responding while container boots — keep retrying
     } catch {
-      // Network error or timeout — container is still spinning up
+      // Network error or timeout — container is spinning up
     }
-    // Wait before retrying (1s, 2s, 3s)
     if (attempt < maxRetries - 1) {
       await new Promise((r) => setTimeout(r, (attempt + 1) * 1000));
     }
@@ -40,38 +62,45 @@ async function wakeBackend(maxRetries = 3): Promise<boolean> {
 }
 
 /**
- * Call the Railway backend to predict the user's dosha.
- *
- * Returns the prediction result plus metadata about the source.
- * If the backend is unreachable, falls back to local rule-based scoring.
+ * Call the backend to predict the user's dosha.
+ * If token is provided, the backend validates the user identity and persists
+ * the assessment record to Supabase.
  */
-export async function predictDosha(answers: AssessmentAnswers): Promise<{
-  result: PredictionResult;
-  source: "api" | "local";
-  error?: string;
-}> {
+export async function predictDosha(
+  answers: AssessmentAnswers,
+  token?: string
+): Promise<PredictResponse> {
   if (!DOSHA_API_URL) {
     return {
       result: scoreLocally(answers),
       source: "local",
-      error: "VITE_DOSHA_API_URL not set",
+      saved: false,
+      error: "VITE_DOSHA_API_URL not configured",
     };
   }
 
-  // Wake the backend — only attempt predict if it responds
+  // Wake backend if cold
   const alive = await wakeBackend();
   if (!alive) {
     return {
       result: scoreLocally(answers),
       source: "local",
+      saved: false,
       error: "Backend did not respond after retries",
     };
   }
 
   try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const res = await fetch(`${DOSHA_API_URL}/predict`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(answers),
       signal: AbortSignal.timeout(15_000),
     });
@@ -80,16 +109,102 @@ export async function predictDosha(answers: AssessmentAnswers): Promise<{
       throw new Error(`Backend responded with status ${res.status}`);
     }
 
-    const data: PredictionResult = await res.json();
-    return { result: data, source: "api" };
+    const data = await res.json();
+    return {
+      result: {
+        primaryDosha: data.primaryDosha,
+        confidence: data.confidence,
+        secondaryDosha: data.secondaryDosha,
+        secondaryConfidence: data.secondaryConfidence,
+        keyTraits: data.keyTraits,
+      },
+      source: "api",
+      saved: data.saved || false,
+      assessmentId: data.assessmentId,
+    };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Request failed";
-    return { result: scoreLocally(answers), source: "local", error: message };
+    return {
+      result: scoreLocally(answers),
+      source: "local",
+      saved: false,
+      error: message,
+    };
   }
 }
 
 /**
- * Check whether the Railway backend is healthy and the model is loaded.
+ * Retrieves the current authenticated user's authoritative latest DOSA.
+ */
+export async function getCurrentDosha(token?: string): Promise<BackendCurrentDosha | null> {
+  if (!DOSHA_API_URL || !token) return null;
+
+  try {
+    const res = await fetch(`${DOSHA_API_URL}/current-dosha`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      signal: AbortSignal.timeout(8_000),
+    });
+
+    if (res.status === 200) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn("Backend getCurrentDosha error, using fallback:", err);
+  }
+  return null;
+}
+
+/**
+ * Retrieves personalized recommendations for the authenticated user from backend.
+ * Falls back to client-side recommendation engine if backend is unavailable.
+ */
+export async function getRecommendations(
+  token?: string,
+  fallbackDosha: "vata" | "pitta" | "kapha" = "vata",
+  fallbackSecondary?: string | null
+): Promise<DoshaRecommendations> {
+  if (DOSHA_API_URL && token) {
+    try {
+      const res = await fetch(`${DOSHA_API_URL}/recommendations`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        signal: AbortSignal.timeout(8_000),
+      });
+
+      if (res.status === 200) {
+        const data = await res.json();
+        return {
+          dominantDosha: data.dominantDosha,
+          secondaryDosha: data.secondaryDosha,
+          tagline: data.tagline,
+          element: data.element,
+          description: data.description,
+          dietGuidance: data.dietGuidance,
+          lifestyleRituals: data.lifestyleRituals.map((r: any) =>
+            typeof r === "string" ? { title: r, time: "", description: "" } : r
+          ),
+          herbalSupport: data.herbalSupport.map((h: any) =>
+            typeof h === "string" ? { herb: h, purpose: "" } : h
+          ),
+          yogaAndPranayama: data.yogaAndPranayama,
+          foodsToFavor: data.foodsToFavor,
+          foodsToAvoid: data.foodsToAvoid,
+        };
+      }
+    } catch (err) {
+      console.warn("Backend getRecommendations error, using local engine:", err);
+    }
+  }
+
+  // Fallback to local recommendation engine
+  return getRecommendationsForDosha(fallbackDosha, fallbackSecondary);
+}
+
+/**
+ * Health check endpoint for FastAPI backend.
  */
 export async function checkHealth(): Promise<{
   ok: boolean;
