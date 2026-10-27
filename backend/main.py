@@ -296,7 +296,7 @@ async def _get_user_id_from_token(authorization: str) -> str:
 
 
 async def _fetch_latest_assessment(user_id: str) -> Optional[dict]:
-    """Fetch the latest dosha_assessment row for a user via Supabase REST API."""
+    """Fetch the latest completed dosha_assessment row for a user via Supabase REST API."""
     import httpx
 
     if not _supabase_url or not _supabase_service_key:
@@ -313,6 +313,7 @@ async def _fetch_latest_assessment(user_id: str) -> Optional[dict]:
                 },
                 params={
                     "user_id": f"eq.{user_id}",
+                    "status": "eq.completed",
                     "order": "created_at.desc",
                     "limit": "1",
                 },
@@ -502,14 +503,14 @@ async def health():
 @app.get("/current-dosha")
 async def current_dosha(authorization: Optional[str] = Header(None)):
     """
-    Return the authenticated user's most recent dosha assessment.
+    Return the authenticated user's most recent completed dosha assessment.
     Requires a valid Supabase JWT in the Authorization header.
     """
     user_id = await _get_user_id_from_token(authorization or "")
 
     row = await _fetch_latest_assessment(user_id)
     if not row:
-        raise HTTPException(status_code=404, detail="No assessment found")
+        raise HTTPException(status_code=404, detail="No completed assessment found")
 
     answers = row.get("answers") or {}
     ml_meta = answers.get("_ml_prediction") if isinstance(answers, dict) else {}
@@ -525,8 +526,10 @@ async def current_dosha(authorization: Optional[str] = Header(None)):
         "pittaScore": row.get("pitta_score", 0),
         "kaphaScore": row.get("kapha_score", 0),
         "keyTraits": row.get("key_traits") or ml_meta.get("keyTraits") or [],
+        "status": row.get("status", "completed"),
         "assessmentId": row.get("id"),
         "assessedAt": row.get("created_at"),
+        "updatedAt": row.get("updated_at"),
     }
 
 
@@ -534,14 +537,14 @@ async def current_dosha(authorization: Optional[str] = Header(None)):
 async def recommendations(authorization: Optional[str] = Header(None)):
     """
     Return personalized Ayurvedic recommendations for the authenticated user
-    based on their most recent dosha assessment.
+    based on their most recent completed dosha assessment.
     Requires a valid Supabase JWT in the Authorization header.
     """
     user_id = await _get_user_id_from_token(authorization or "")
 
     row = await _fetch_latest_assessment(user_id)
     if not row:
-        raise HTTPException(status_code=404, detail="No assessment found")
+        raise HTTPException(status_code=404, detail="No completed assessment found")
 
     dominant = (row.get("dominant_dosha") or "vata").capitalize()
     secondary_raw = row.get("secondary_dosha")

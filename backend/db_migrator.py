@@ -32,9 +32,12 @@ REQUIRED_DOSHA_COLUMNS = [
     "secondary_confidence",
     "prediction_source",
     "key_traits",
+    "status",
     "guest_session_id",
     "claimed_at",
     "original_guest_session_id",
+    "created_at",
+    "updated_at",
 ]
 
 REQUIRED_FUNCTIONS = [

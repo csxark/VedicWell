@@ -16,6 +16,7 @@ interface Profile {
   vata_percentage: number;
   pitta_percentage: number;
   kapha_percentage: number;
+  assessment_completed?: boolean;
   created_at: string;
   updated_at: string;
 }

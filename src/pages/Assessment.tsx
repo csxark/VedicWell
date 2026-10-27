@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { LotusIcon, MandalaIcon } from "@/components/icons/SacredIcons";
-import { ChevronLeft, ChevronRight, Lock, Sparkles, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, Sparkles, Check, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -68,8 +68,12 @@ const Assessment = () => {
       const token = session?.access_token;
       const { result, source, saved, error: apiError } = await predictDosha(fullAnswers, token);
 
-      if (apiError) {
-        console.warn("ML API notice:", apiError);
+      if (source === "local" || apiError) {
+        console.warn("ML API notice:", apiError || "Using local heuristic fallback");
+        toast({
+          title: "ML Service Offline",
+          description: "Calculated your Dosha using traditional Ayurvedic principles.",
+        });
       }
 
       setPredictionResult(result);
@@ -230,6 +234,21 @@ const Assessment = () => {
                     : "Based on Ayurvedic scoring heuristics"}
                 </p>
               </div>
+
+              {/* Informative Banner when ML Service is Offline */}
+              {predictionSource === "local" && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 }}
+                  className="mb-8 p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex items-start sm:items-center gap-3.5 shadow-sm"
+                >
+                  <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5 sm:mt-0" />
+                  <div className="text-sm leading-relaxed">
+                    <strong className="font-semibold text-amber-950 dark:text-amber-100">Ayurvedic Heuristics Active:</strong> Our XGBoost ML service is currently offline or unreachable. Your Dosha profile was successfully calculated using traditional Ayurvedic heuristic scoring rules rather than the ML model.
+                  </div>
+                </motion.div>
+              )}
 
               {/* Primary + Secondary Dosha Cards */}
               <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 mb-10">

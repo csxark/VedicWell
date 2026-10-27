@@ -33,7 +33,9 @@ export interface UserDoshaRecord {
   pittaScore: number;
   kaphaScore: number;
   keyTraits?: string[];
+  status?: string;
   createdAt: string;
+  updatedAt?: string;
   answers: any;
 }
 
@@ -54,7 +56,6 @@ export interface PersistGuestAssessmentParams {
 /**
  * Persists an unauthenticated guest assessment directly to Supabase if the
  * migration allowing nullable user_id + guest_session_id is in place.
- * Fails gracefully and silently if RLS or schema doesn't yet support guest inserts.
  */
 export async function saveGuestAssessmentToSupabase(
   params: PersistGuestAssessmentParams
@@ -74,6 +75,10 @@ export async function saveGuestAssessmentToSupabase(
       predictionSource = "api",
     } = params;
 
+    if (!guestSessionId) {
+      throw new Error("guestSessionId is required for guest assessment persistence");
+    }
+
     const assessmentId =
       typeof crypto !== "undefined" && crypto.randomUUID
         ? crypto.randomUUID()
@@ -83,15 +88,21 @@ export async function saveGuestAssessmentToSupabase(
             return v.toString(16);
           });
 
+    const safeTraits = Array.isArray(keyTraits) ? keyTraits : [];
+    const safeConfidence = typeof confidence === "number" && !isNaN(confidence) ? confidence : 0.75;
+    const safeSecondaryConfidence =
+      typeof secondaryConfidence === "number" && !isNaN(secondaryConfidence) ? secondaryConfidence : null;
+
     const answersPayload = {
       ...answers,
       _ml_prediction: {
         dominantDosha,
-        confidence,
-        secondaryDosha,
-        secondaryConfidence,
-        keyTraits,
+        confidence: safeConfidence,
+        secondaryDosha: secondaryDosha?.toLowerCase() || null,
+        secondaryConfidence: safeSecondaryConfidence,
+        keyTraits: safeTraits,
         source: predictionSource,
+        status: "completed",
         persistedAt: new Date().toISOString(),
       },
     };
@@ -100,26 +111,30 @@ export async function saveGuestAssessmentToSupabase(
       id: assessmentId,
       user_id: null,
       guest_session_id: guestSessionId,
-      dominant_dosha: dominantDosha,
-      vata_score: vataScore,
-      pitta_score: pittaScore,
-      kapha_score: kaphaScore,
+      dominant_dosha: dominantDosha.toLowerCase(),
+      vata_score: vataScore ?? 0,
+      pitta_score: pittaScore ?? 0,
+      kapha_score: kaphaScore ?? 0,
       answers: answersPayload,
-      confidence,
-      secondary_dosha: secondaryDosha || null,
-      secondary_confidence: secondaryConfidence || null,
+      confidence: safeConfidence,
+      secondary_dosha: secondaryDosha?.toLowerCase() || null,
+      secondary_confidence: safeSecondaryConfidence,
       prediction_source: predictionSource,
-      key_traits: keyTraits || null,
+      key_traits: safeTraits,
+      status: "completed",
     };
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("dosha_assessments")
-      .insert(payload);
+      .insert(payload)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
+      console.error("saveGuestAssessmentToSupabase insert error:", error);
       return { error: new Error(error.message) };
     }
-    return { id: assessmentId, error: null };
+    return { id: data?.id || assessmentId, error: null };
   } catch (err) {
     return { error: err instanceof Error ? err : new Error(String(err)) };
   }
@@ -127,10 +142,8 @@ export async function saveGuestAssessmentToSupabase(
 
 /**
  * Persists an assessment and updates the user's profile in Supabase.
- * Uses a resilient double-strategy:
- * 1. Embeds full ML prediction inside answers JSONB (which exists on all Supabase schemas).
- * 2. Attempts insert with extended ML columns, gracefully falling back to base columns if needed.
- * 3. Updates the user's profile with computed percentages.
+ * Validates all required ML fields to prevent unexpected null columns,
+ * sets status = 'completed', and updates profile assessment_completed.
  */
 export async function saveAssessmentToSupabase(
   params: PersistAssessmentParams
@@ -150,70 +163,61 @@ export async function saveAssessmentToSupabase(
       predictionSource = "api",
     } = params;
 
+    if (!userId) {
+      throw new Error("userId is required to persist an authenticated assessment");
+    }
+    if (!dominantDosha) {
+      throw new Error("dominantDosha is required to persist an assessment");
+    }
+
+    const safeTraits = Array.isArray(keyTraits) ? keyTraits : [];
+    const safeConfidence = typeof confidence === "number" && !isNaN(confidence) ? confidence : 0.75;
+    const safeSecondaryConfidence =
+      typeof secondaryConfidence === "number" && !isNaN(secondaryConfidence) ? secondaryConfidence : null;
+
     // Rich answers payload including embedded ML prediction
     const answersPayload = {
       ...answers,
       _ml_prediction: {
         dominantDosha,
-        confidence,
-        secondaryDosha,
-        secondaryConfidence,
-        keyTraits,
+        confidence: safeConfidence,
+        secondaryDosha: secondaryDosha?.toLowerCase() || null,
+        secondaryConfidence: safeSecondaryConfidence,
+        keyTraits: safeTraits,
         source: predictionSource,
+        status: "completed",
         persistedAt: new Date().toISOString(),
       },
     };
 
-    // 1. Insert into dosha_assessments
-    let insertedId: string | undefined;
-
-    // Try extended insert with all columns first
-    const extendedPayload: any = {
+    // 1. Insert into dosha_assessments with all required ML prediction columns
+    const payload: any = {
       user_id: userId,
-      dominant_dosha: dominantDosha,
-      vata_score: vataScore,
-      pitta_score: pittaScore,
-      kapha_score: kaphaScore,
+      dominant_dosha: dominantDosha.toLowerCase(),
+      vata_score: vataScore ?? 0,
+      pitta_score: pittaScore ?? 0,
+      kapha_score: kaphaScore ?? 0,
       answers: answersPayload,
-      confidence,
-      secondary_dosha: secondaryDosha || null,
-      secondary_confidence: secondaryConfidence || null,
+      confidence: safeConfidence,
+      secondary_dosha: secondaryDosha?.toLowerCase() || null,
+      secondary_confidence: safeSecondaryConfidence,
       prediction_source: predictionSource,
-      key_traits: keyTraits || null,
+      key_traits: safeTraits,
+      status: "completed",
     };
 
-    const { data: extData, error: extError } = await supabase
+    const { data: insertData, error: insertError } = await supabase
       .from("dosha_assessments")
-      .insert(extendedPayload)
+      .insert(payload)
       .select("id")
-      .maybeSingle();
+      .single();
 
-    if (extError) {
-      console.warn("Extended columns insert notice, retrying with base schema:", extError.message);
-      // Fallback to base table schema in case migration is not yet applied
-      const basePayload: any = {
-        user_id: userId,
-        dominant_dosha: dominantDosha,
-        vata_score: vataScore,
-        pitta_score: pittaScore,
-        kapha_score: kaphaScore,
-        answers: answersPayload,
-      };
-
-      const { data: baseData, error: baseError } = await supabase
-        .from("dosha_assessments")
-        .insert(basePayload)
-        .select("id")
-        .maybeSingle();
-
-      if (baseError) {
-        console.error("Supabase assessment insert failed:", baseError);
-        return { error: new Error(baseError.message) };
-      }
-      insertedId = baseData?.id;
-    } else {
-      insertedId = extData?.id;
+    if (insertError) {
+      console.error("Supabase assessment insert failed:", insertError);
+      return { error: new Error(insertError.message) };
     }
+
+    const insertedId = insertData?.id;
 
     // 2. Compute percentages for profile update
     const primaryShare = typeof confidence === "number" ? confidence : 1;
@@ -261,6 +265,7 @@ export async function saveAssessmentToSupabase(
         vata_percentage: vataPct,
         pitta_percentage: pittaPct,
         kapha_percentage: kaphaPct,
+        assessment_completed: true,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId);
@@ -279,6 +284,7 @@ export async function saveAssessmentToSupabase(
 /**
  * Dynamically queries the latest valid DOSA assessment for a given user from Supabase.
  * Order: created_at DESC, limit 1.
+ * Gated on status = 'completed' so incomplete or pending assessments are never returned.
  */
 export async function fetchLatestUserDosha(userId: string): Promise<UserDoshaRecord | null> {
   if (!userId) return null;
@@ -288,6 +294,7 @@ export async function fetchLatestUserDosha(userId: string): Promise<UserDoshaRec
       .from("dosha_assessments")
       .select("*")
       .eq("user_id", userId)
+      .eq("status", "completed")
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -316,7 +323,9 @@ export async function fetchLatestUserDosha(userId: string): Promise<UserDoshaRec
       pittaScore: data.pitta_score,
       kaphaScore: data.kapha_score,
       keyTraits,
+      status: (data as any).status || "completed",
       createdAt: data.created_at,
+      updatedAt: (data as any).updated_at,
       answers,
     };
   } catch (err) {
@@ -327,6 +336,7 @@ export async function fetchLatestUserDosha(userId: string): Promise<UserDoshaRec
 
 /**
  * Queries all historical assessments for a user, ordered from newest to oldest.
+ * Returns only completed assessments.
  */
 export async function fetchUserDoshaHistory(userId: string): Promise<UserDoshaRecord[]> {
   if (!userId) return [];
@@ -336,6 +346,7 @@ export async function fetchUserDoshaHistory(userId: string): Promise<UserDoshaRe
       .from("dosha_assessments")
       .select("*")
       .eq("user_id", userId)
+      .eq("status", "completed")
       .order("created_at", { ascending: false });
 
     if (error || !data) {
@@ -356,7 +367,9 @@ export async function fetchUserDoshaHistory(userId: string): Promise<UserDoshaRe
         pittaScore: row.pitta_score,
         kaphaScore: row.kapha_score,
         keyTraits: (row as any).key_traits ?? mlMeta.keyTraits ?? [],
+        status: (row as any).status || "completed",
         createdAt: row.created_at,
+        updatedAt: (row as any).updated_at,
         answers,
       };
     });

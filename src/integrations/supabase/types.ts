@@ -30,6 +30,8 @@ export type Database = {
           prediction_source: string | null
           secondary_confidence: number | null
           secondary_dosha: string | null
+          status: string
+          updated_at: string
           user_id: string | null
           vata_score: number
         }
@@ -48,6 +50,8 @@ export type Database = {
           prediction_source?: string | null
           secondary_confidence?: number | null
           secondary_dosha?: string | null
+          status?: string
+          updated_at?: string
           user_id?: string | null
           vata_score?: number
         }
@@ -66,6 +70,8 @@ export type Database = {
           prediction_source?: string | null
           secondary_confidence?: number | null
           secondary_dosha?: string | null
+          status?: string
+          updated_at?: string
           user_id?: string | null
           vata_score?: number
         }
@@ -73,6 +79,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          assessment_completed: boolean | null
           avatar_url: string | null
           created_at: string
           dominant_dosha: string | null
@@ -85,6 +92,7 @@ export type Database = {
           vata_percentage: number | null
         }
         Insert: {
+          assessment_completed?: boolean | null
           avatar_url?: string | null
           created_at?: string
           dominant_dosha?: string | null
@@ -97,6 +105,7 @@ export type Database = {
           vata_percentage?: number | null
         }
         Update: {
+          assessment_completed?: boolean | null
           avatar_url?: string | null
           created_at?: string
           dominant_dosha?: string | null
@@ -118,6 +127,7 @@ export type Database = {
           dosha_type: string | null
           id: string
           symptoms: string
+          updated_at: string
           user_id: string
         }
         Insert: {
@@ -127,6 +137,7 @@ export type Database = {
           dosha_type?: string | null
           id?: string
           symptoms: string
+          updated_at?: string
           user_id: string
         }
         Update: {
@@ -136,6 +147,7 @@ export type Database = {
           dosha_type?: string | null
           id?: string
           symptoms?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -146,6 +158,7 @@ export type Database = {
           activity_type: string
           created_at: string
           id: string
+          updated_at: string
           user_id: string
         }
         Insert: {
@@ -153,6 +166,7 @@ export type Database = {
           activity_type: string
           created_at?: string
           id?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
@@ -160,6 +174,7 @@ export type Database = {
           activity_type?: string
           created_at?: string
           id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -169,7 +184,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      claim_guest_assessment: {
+        Args: {
+          p_guest_session_id: string
+          p_assessment_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

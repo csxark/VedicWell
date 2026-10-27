@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   User, Settings, LogOut, Calendar, Activity, 
-  Heart, Brain, Leaf, TrendingUp, Clock, MessageSquare
+  Heart, Brain, Leaf, TrendingUp, Clock, MessageSquare, AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -127,6 +127,37 @@ const Profile = () => {
       });
     }
     setIsSaving(false);
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
+
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    setIsResendingEmail(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: user.email,
+      });
+      if (error) {
+        toast({
+          title: "Could not send verification",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Verification email sent",
+          description: "Please check your inbox.",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to send email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResendingEmail(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -193,6 +224,34 @@ const Profile = () => {
               </Button>
             </div>
           </motion.div>
+
+          {/* Email Verification Warning Banner */}
+          {user && !user.email_confirmed_at && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between flex-wrap gap-4 shadow-sm"
+            >
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Email not verified</p>
+                  <p className="text-xs text-muted-foreground">
+                    Please verify your email address (<span className="text-foreground font-medium">{user.email}</span>) to secure your account.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                disabled={isResendingEmail}
+                onClick={handleResendVerification}
+              >
+                {isResendingEmail ? "Sending..." : "Resend Verification Email"}
+              </Button>
+            </motion.div>
+          )}
 
           {/* Dosha Profile Card */}
           {profile?.dominant_dosha && (

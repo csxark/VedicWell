@@ -97,47 +97,76 @@ const weeklyProgress = [
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
   const [latestAssessment, setLatestAssessment] = useState<UserDoshaRecord | null>(null);
+  const [isCheckingAssessment, setIsCheckingAssessment] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      if (!loading) {
+        setIsCheckingAssessment(false);
+      }
+      return;
+    }
 
     let isCurrent = true;
-    setLatestAssessment(null);
+    setIsCheckingAssessment(true);
 
-    fetchLatestUserDosha(user.id).then((record) => {
-      if (isCurrent) {
-        setLatestAssessment(record);
-      }
-    });
+    fetchLatestUserDosha(user.id)
+      .then((record) => {
+        if (isCurrent) {
+          setLatestAssessment(record);
+          setIsCheckingAssessment(false);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch assessment for dashboard:", err);
+        if (isCurrent) {
+          setIsCheckingAssessment(false);
+        }
+      });
 
     return () => {
       isCurrent = false;
     };
-  }, [user?.id]);
+  }, [user?.id, loading]);
 
-  // Derive current dosha dynamically from latest assessment, with profile fallback
-  const doshaType = (
-    latestAssessment?.dominantDosha ||
-    profile?.dominant_dosha?.toLowerCase() ||
-    "pitta"
-  ) as "vata" | "pitta" | "kapha";
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
-  const doshaData = doshaRecommendations[doshaType];
+  // Show clean loading state while verifying auth & completed assessment
+  if (loading || isCheckingAssessment) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <LotusIcon className="w-16 h-16 text-secondary animate-pulse mb-4" />
+        <p className="text-muted-foreground text-sm font-medium">Verifying your wellness profile...</p>
+      </div>
+    );
+  }
+
+  // Derive current dosha dynamically from completed assessment or confirmed profile
+  const dominant = latestAssessment?.dominantDosha || profile?.dominant_dosha?.toLowerCase();
+  const hasCompletedAssessment = Boolean(
+    dominant && (latestAssessment?.status === "completed" || profile?.assessment_completed || profile?.dominant_dosha)
+  );
+
+  // Issue 2 Gate: If no completed assessment exists, redirect immediately to /assessment
+  if (!hasCompletedAssessment || !dominant) {
+    return <Navigate to="/assessment" replace state={{ reason: "assessment_required" }} />;
+  }
+
+  const doshaType = dominant as "vata" | "pitta" | "kapha";
+  const doshaData = doshaRecommendations[doshaType] || doshaRecommendations.vata;
   const DoshaIcon = doshaData.icon;
 
   const initialRituals = useMemo(
     () => doshaData.rituals.map((r, i) => ({ ...r, id: i + 1, completed: false })),
-    [doshaType]
+    [doshaType, doshaData]
   );
 
   const [rituals, setRituals] = useState(initialRituals);
 
   // Reset rituals when dosha changes
   useMemo(() => setRituals(initialRituals), [initialRituals]);
-
-  if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
-  }
 
   const toggleRitual = (id: number) => {
     setRituals(prev =>

@@ -92,11 +92,21 @@ const Auth = () => {
           });
           navigate("/dashboard", { replace: true });
         } else {
-          setIsVerificationSent(true);
-          toast({
-            title: "Verification email sent",
-            description: "Please check your inbox. Clicking the link will take you directly to your dashboard.",
-          });
+          // Attempt immediate sign in to establish a session without waiting for email verification
+          const { error: signInError } = await signIn(email, password);
+          if (!signInError) {
+            toast({
+              title: "Account created!",
+              description: "Welcome to VedicWell. Entering your dashboard...",
+            });
+            navigate("/dashboard", { replace: true });
+          } else {
+            setIsVerificationSent(true);
+            toast({
+              title: "Account created",
+              description: "Please check your inbox if Supabase email confirmation is enabled, or sign in directly.",
+            });
+          }
         }
       } else {
         const { error } = await signIn(email, password);
@@ -105,12 +115,6 @@ const Auth = () => {
             toast({
               title: "Invalid credentials",
               description: "The email or password you entered is incorrect.",
-              variant: "destructive",
-            });
-          } else if (error.message.includes("Email not confirmed")) {
-            toast({
-              title: "Email not verified",
-              description: "Please verify your email before signing in.",
               variant: "destructive",
             });
           } else {

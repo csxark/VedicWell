@@ -122,13 +122,17 @@ export function SymptomChecker() {
 
       // Save to history if user is logged in
       if (user && fullResponse) {
-        await supabase.from("symptom_history").insert({
+        const { error: insertError } = await supabase.from("symptom_history").insert({
           user_id: user.id,
           symptoms,
           dosha_type: doshaType || null,
           additional_context: additionalContext || null,
           ai_response: fullResponse,
         });
+
+        if (insertError) {
+          console.error("Failed to save symptom history:", insertError.message);
+        }
       }
     } catch (error) {
       console.error("Symptom checker error:", error);
