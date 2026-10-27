@@ -10,6 +10,7 @@ import { LotusIcon } from "@/components/icons/SacredIcons";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
+import { SymptomCheckerInputSchema, sanitizeText } from "@/lib/validation/schemas";
 
 const DOSHA_INFO = {
   vata: {
@@ -30,6 +31,7 @@ export function SymptomChecker() {
   const [symptoms, setSymptoms] = useState("");
   const [doshaType, setDoshaType] = useState<string>("");
   const [additionalContext, setAdditionalContext] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -44,10 +46,22 @@ export function SymptomChecker() {
   });
 
   const handleSubmit = async () => {
-    if (!symptoms.trim()) {
+    setValidationError(null);
+    const sanitizedSymptoms = sanitizeText(symptoms);
+    const sanitizedContext = additionalContext ? sanitizeText(additionalContext) : undefined;
+
+    const validation = SymptomCheckerInputSchema.safeParse({
+      symptoms: sanitizedSymptoms,
+      doshaType: (doshaType as any) || "Unknown",
+      additionalContext: sanitizedContext,
+    });
+
+    if (!validation.success) {
+      const errMsg = validation.error.errors[0]?.message || "Invalid input";
+      setValidationError(errMsg);
       toast({
-        title: "Please describe your symptoms",
-        description: "We need to know what you're experiencing to provide recommendations.",
+        title: "Validation error",
+        description: errMsg,
         variant: "destructive",
       });
       return;
@@ -67,9 +81,9 @@ export function SymptomChecker() {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({
-            symptoms,
-            doshaType: doshaType || "Unknown",
-            additionalContext,
+            symptoms: sanitizedSymptoms,
+            doshaType: validation.data.doshaType,
+            additionalContext: sanitizedContext,
           }),
         }
       );
@@ -224,15 +238,23 @@ export function SymptomChecker() {
               <CardContent className="space-y-4">
                 <Textarea
                   value={symptoms}
-                  onChange={(e) => setSymptoms(e.target.value)}
+                  onChange={(e) => {
+                    setSymptoms(e.target.value);
+                    if (validationError) setValidationError(null);
+                  }}
                   placeholder="e.g., I've been experiencing digestive issues, feeling bloated after meals, and having trouble sleeping at night..."
                   className="min-h-[120px] bg-background/50"
+                  maxLength={2000}
                 />
+                {validationError && (
+                  <p className="text-sm text-destructive font-medium">{validationError}</p>
+                )}
                 <Textarea
                   value={additionalContext}
                   onChange={(e) => setAdditionalContext(e.target.value)}
                   placeholder="Additional context (optional): lifestyle, diet, stress levels, recent changes..."
                   className="min-h-[80px] bg-background/50"
+                  maxLength={1000}
                 />
               </CardContent>
             </Card>

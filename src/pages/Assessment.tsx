@@ -21,6 +21,7 @@ import {
 import { predictDosha } from "@/lib/doshaApi";
 import { saveAssessmentToSupabase, saveGuestAssessmentToSupabase } from "@/lib/doshaService";
 import { writeGuestCache, markGuestCacheSynced } from "@/lib/guestDoshaCache";
+import { AssessmentAnswersSchema } from "@/lib/validation/schemas";
 
 
 const Assessment = () => {
@@ -60,9 +61,20 @@ const Assessment = () => {
   };
 
   const handleComplete = async () => {
+    // Validate all 11 questions with strict Zod schema
+    const validation = AssessmentAnswersSchema.safeParse(answers);
+    if (!validation.success) {
+      toast({
+        title: "Incomplete Assessment",
+        description: "Please complete all 11 questions with valid choices before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const fullAnswers = answers as AssessmentAnswers;
+      const fullAnswers = validation.data as AssessmentAnswers;
 
       // 1. Call the ML prediction endpoint, securely sending user's session token if authenticated
       const token = session?.access_token;

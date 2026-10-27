@@ -1,14 +1,55 @@
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 import joblib
 import numpy as np
 import pandas as pd
 from typing import Optional
 import os
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+from schemas import AssessmentInput, PredictionResponse
+
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Dosha Prediction AI API", version="1.0.0")
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    response = JSONResponse(
+        status_code=429,
+        content={"detail": f"Rate limit exceeded: {exc.detail}"},
+    )
+    response.headers["Retry-After"] = "60"
+    return response
+
+
+# Security headers & body size limiter middleware
+@app.middleware("http")
+async def security_and_size_middleware(request: Request, call_next):
+    # Max request body size limit: 1MB (1,048,576 bytes)
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > 1048576:
+                return JSONResponse(
+                    status_code=413,
+                    content={"detail": "Request body too large. Maximum size is 1MB."},
+                )
+        except ValueError:
+            pass
+
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
 
 # ---------------------------------------------------------------------------
 # CORS
@@ -288,7 +329,14 @@ async def _get_user_id_from_token(authorization: str) -> str:
             )
         if resp.status_code != 200:
             raise HTTPException(status_code=401, detail="Invalid or expired token")
-        return resp.json()["id"]
+        user_data = resp.json()
+        require_verification = os.getenv("REQUIRE_EMAIL_VERIFICATION", "false").lower() in ("true", "1", "yes")
+        if require_verification and not user_data.get("email_confirmed_at"):
+            raise HTTPException(
+                status_code=403,
+                detail="Email verification required. Please verify your email before accessing this resource.",
+            )
+        return user_data["id"]
     except HTTPException:
         raise
     except Exception as exc:
@@ -326,31 +374,6 @@ async def _fetch_latest_assessment(user_id: str) -> Optional[dict]:
     return None
 
 # ---------------------------------------------------------------------------
-# Pydantic models
-# ---------------------------------------------------------------------------
-
-class AssessmentInput(BaseModel):
-    bodyFrame: str
-    paceOfWork: str
-    bodyEnergy: str
-    hungerPattern: str
-    hairType: str
-    sleepPattern: str
-    mentalActivity: str
-    voiceQuality: str
-    jointStructure: str
-    skinType: str
-    bodyOdor: str
-
-
-class PredictionResponse(BaseModel):
-    primaryDosha: str
-    confidence: float
-    secondaryDosha: str
-    secondaryConfidence: float
-    keyTraits: list[str]
-
-# ---------------------------------------------------------------------------
 # Encoding / prediction helpers
 # ---------------------------------------------------------------------------
 
@@ -360,17 +383,17 @@ def encode_input(data: AssessmentInput) -> np.ndarray:
     Aligns columns with feature_columns and fills missing columns with 0.
     """
     row_data = {
-        "bodyFrame": data.bodyFrame,
-        "paceOfWork": data.paceOfWork,
-        "bodyEnergy": data.bodyEnergy,
-        "hungerPattern": data.hungerPattern,
-        "hairType": data.hairType,
-        "sleepPattern": data.sleepPattern,
-        "mentalActivity": data.mentalActivity,
-        "voiceQuality": data.voiceQuality,
-        "jointStructure": data.jointStructure,
-        "skinType": data.skinType,
-        "bodyOdor": data.bodyOdor,
+        "bodyFrame": str(data.bodyFrame.value if hasattr(data.bodyFrame, "value") else data.bodyFrame),
+        "paceOfWork": str(data.paceOfWork.value if hasattr(data.paceOfWork, "value") else data.paceOfWork),
+        "bodyEnergy": str(data.bodyEnergy.value if hasattr(data.bodyEnergy, "value") else data.bodyEnergy),
+        "hungerPattern": str(data.hungerPattern.value if hasattr(data.hungerPattern, "value") else data.hungerPattern),
+        "hairType": str(data.hairType.value if hasattr(data.hairType, "value") else data.hairType),
+        "sleepPattern": str(data.sleepPattern.value if hasattr(data.sleepPattern, "value") else data.sleepPattern),
+        "mentalActivity": str(data.mentalActivity.value if hasattr(data.mentalActivity, "value") else data.mentalActivity),
+        "voiceQuality": str(data.voiceQuality.value if hasattr(data.voiceQuality, "value") else data.voiceQuality),
+        "jointStructure": str(data.jointStructure.value if hasattr(data.jointStructure, "value") else data.jointStructure),
+        "skinType": str(data.skinType.value if hasattr(data.skinType, "value") else data.skinType),
+        "bodyOdor": str(data.bodyOdor.value if hasattr(data.bodyOdor, "value") else data.bodyOdor),
     }
 
     # Create one-hot encoded features
@@ -393,30 +416,42 @@ def rule_based_predict(data: AssessmentInput):
     """Fallback rule-based prediction when model is not available."""
     scores = {"Vata": 0, "Pitta": 0, "Kapha": 0}
 
-    if data.bodyFrame == "Thin and Lean": scores["Vata"] += 2
-    if data.paceOfWork == "Fast": scores["Vata"] += 2
-    if data.bodyEnergy == "Low": scores["Vata"] += 1
-    if data.sleepPattern == "Light Sleeper": scores["Vata"] += 2
-    if data.mentalActivity == "Restless": scores["Vata"] += 2
-    if data.hairType == "Dry": scores["Vata"] += 1
-    if data.skinType == "Dry": scores["Vata"] += 1
-    if data.bodyOdor == "Mild": scores["Vata"] += 1
+    bodyFrame = data.bodyFrame.value if hasattr(data.bodyFrame, "value") else data.bodyFrame
+    paceOfWork = data.paceOfWork.value if hasattr(data.paceOfWork, "value") else data.paceOfWork
+    bodyEnergy = data.bodyEnergy.value if hasattr(data.bodyEnergy, "value") else data.bodyEnergy
+    hungerPattern = data.hungerPattern.value if hasattr(data.hungerPattern, "value") else data.hungerPattern
+    hairType = data.hairType.value if hasattr(data.hairType, "value") else data.hairType
+    sleepPattern = data.sleepPattern.value if hasattr(data.sleepPattern, "value") else data.sleepPattern
+    mentalActivity = data.mentalActivity.value if hasattr(data.mentalActivity, "value") else data.mentalActivity
+    voiceQuality = data.voiceQuality.value if hasattr(data.voiceQuality, "value") else data.voiceQuality
+    jointStructure = data.jointStructure.value if hasattr(data.jointStructure, "value") else data.jointStructure
+    skinType = data.skinType.value if hasattr(data.skinType, "value") else data.skinType
+    bodyOdor = data.bodyOdor.value if hasattr(data.bodyOdor, "value") else data.bodyOdor
 
-    if data.bodyFrame == "Medium": scores["Pitta"] += 2
-    if data.bodyEnergy == "High": scores["Pitta"] += 2
-    if data.hungerPattern == "Regular": scores["Pitta"] += 2
-    if data.voiceQuality == "Fast": scores["Pitta"] += 1
-    if data.skinType == "Oily": scores["Pitta"] += 1
-    if data.bodyOdor == "Strong": scores["Pitta"] += 2
-    if data.mentalActivity == "Active": scores["Pitta"] += 1
+    if bodyFrame == "Thin and Lean": scores["Vata"] += 2
+    if paceOfWork == "Fast": scores["Vata"] += 2
+    if bodyEnergy == "Low": scores["Vata"] += 1
+    if sleepPattern == "Light Sleeper": scores["Vata"] += 2
+    if mentalActivity == "Restless": scores["Vata"] += 2
+    if hairType == "Dry": scores["Vata"] += 1
+    if skinType == "Dry": scores["Vata"] += 1
+    if bodyOdor == "Mild": scores["Vata"] += 1
 
-    if data.bodyFrame == "Well Built": scores["Kapha"] += 2
-    if data.paceOfWork == "Slow": scores["Kapha"] += 2
-    if data.sleepPattern == "Sleepy": scores["Kapha"] += 2
-    if data.hairType == "Greasy": scores["Kapha"] += 1
-    if data.jointStructure == "Heavy": scores["Kapha"] += 2
-    if data.skinType == "Soft": scores["Kapha"] += 1
-    if data.bodyEnergy == "Medium": scores["Kapha"] += 1
+    if bodyFrame == "Medium": scores["Pitta"] += 2
+    if bodyEnergy == "High": scores["Pitta"] += 2
+    if hungerPattern == "Regular": scores["Pitta"] += 2
+    if voiceQuality == "Fast": scores["Pitta"] += 1
+    if skinType == "Oily": scores["Pitta"] += 1
+    if bodyOdor == "Strong": scores["Pitta"] += 2
+    if mentalActivity == "Active": scores["Pitta"] += 1
+
+    if bodyFrame == "Well Built": scores["Kapha"] += 2
+    if paceOfWork == "Slow": scores["Kapha"] += 2
+    if sleepPattern == "Sleepy": scores["Kapha"] += 2
+    if hairType == "Greasy": scores["Kapha"] += 1
+    if jointStructure == "Heavy": scores["Kapha"] += 2
+    if skinType == "Soft": scores["Kapha"] += 1
+    if bodyEnergy == "Medium": scores["Kapha"] += 1
 
     total = sum(scores.values()) or 1
     probs = {k: v / total for k, v in scores.items()}
@@ -449,7 +484,8 @@ def get_key_traits(data: AssessmentInput, primary_dosha: str) -> list[str]:
     dosha_fields = {"Vata": vata_key, "Pitta": pitta_key, "Kapha": kapha_key}.get(primary_dosha, vata_key)
 
     for field in dosha_fields[:4]:
-        val = getattr(data, field)
+        raw_val = getattr(data, field)
+        val = raw_val.value if hasattr(raw_val, "value") else str(raw_val)
         label = field_labels.get(field, {}).get(val, val)
         traits.append(label)
 
@@ -460,7 +496,8 @@ def get_key_traits(data: AssessmentInput, primary_dosha: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 @app.post("/predict", response_model=PredictionResponse)
-async def predict_dosha(data: AssessmentInput):
+@limiter.limit("30/minute")
+async def predict_dosha(request: Request, data: AssessmentInput):
     global model, feature_columns
     try:
         ensure_model_loaded()
@@ -501,7 +538,8 @@ async def health():
 
 
 @app.get("/current-dosha")
-async def current_dosha(authorization: Optional[str] = Header(None)):
+@limiter.limit("60/minute")
+async def current_dosha(request: Request, authorization: Optional[str] = Header(None)):
     """
     Return the authenticated user's most recent completed dosha assessment.
     Requires a valid Supabase JWT in the Authorization header.
@@ -534,7 +572,8 @@ async def current_dosha(authorization: Optional[str] = Header(None)):
 
 
 @app.get("/recommendations")
-async def recommendations(authorization: Optional[str] = Header(None)):
+@limiter.limit("60/minute")
+async def recommendations(request: Request, authorization: Optional[str] = Header(None)):
     """
     Return personalized Ayurvedic recommendations for the authenticated user
     based on their most recent completed dosha assessment.

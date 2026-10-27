@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   User, Settings, LogOut, Calendar, Activity, 
-  Heart, Brain, Leaf, TrendingUp, Clock, MessageSquare, AlertCircle
+  Heart, Brain, Leaf, TrendingUp, Clock, MessageSquare, AlertCircle,
+  CheckCircle2, ShieldCheck, Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,6 +18,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { ProfileUpdateSchema, sanitizeText } from "@/lib/validation/schemas";
+
+const RESEND_COOLDOWN_SECS = 60;
+const MAX_RESENDS_PER_HOUR = 5;
+const STORAGE_KEY_RESENDS = "vedic_verification_resends";
+const STORAGE_KEY_LAST_RESEND = "vedic_last_verification_resend";
 
 interface DoshaAssessment {
   id: string;
@@ -51,10 +58,35 @@ const Profile = () => {
   const { toast } = useToast();
   
   const [fullName, setFullName] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [assessments, setAssessments] = useState<DoshaAssessment[]>([]);
   const [symptomHistory, setSymptomHistory] = useState<SymptomRecord[]>([]);
   const [engagementStats, setEngagementStats] = useState<EngagementStats | null>(null);
+
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
+
+  useEffect(() => {
+    const checkCooldown = () => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_LAST_RESEND);
+        if (raw) {
+          const lastSent = parseInt(raw, 10);
+          const elapsed = Math.floor((Date.now() - lastSent) / 1000);
+          if (elapsed < RESEND_COOLDOWN_SECS) {
+            setResendCooldown(RESEND_COOLDOWN_SECS - elapsed);
+            return;
+          }
+        }
+      } catch {}
+      setResendCooldown(0);
+    };
+
+    checkCooldown();
+    const interval = setInterval(checkCooldown, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -111,8 +143,23 @@ const Profile = () => {
   };
 
   const handleSaveProfile = async () => {
+    setNameError(null);
+    const sanitized = sanitizeText(fullName);
+    const validation = ProfileUpdateSchema.safeParse({ fullName: sanitized });
+    
+    if (!validation.success) {
+      const msg = validation.error.errors[0]?.message || "Invalid name";
+      setNameError(msg);
+      toast({
+        title: "Validation error",
+        description: msg,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
-    const { error } = await updateProfile({ full_name: fullName });
+    const { error } = await updateProfile({ full_name: sanitized });
     
     if (error) {
       toast({
@@ -127,10 +174,27 @@ const Profile = () => {
       });
     }
     setIsSaving(false);
-  const [isResendingEmail, setIsResendingEmail] = useState(false);
+  };
 
   const handleResendVerification = async () => {
-    if (!user?.email) return;
+    if (!user?.email || resendCooldown > 0) return;
+
+    // Check rate limit: max 5 resends per hour
+    try {
+      const rawHourly = localStorage.getItem(STORAGE_KEY_RESENDS);
+      const timestamps: number[] = rawHourly ? JSON.parse(rawHourly) : [];
+      const oneHourAgo = Date.now() - 3600000;
+      const recent = timestamps.filter((t) => t > oneHourAgo);
+      if (recent.length >= MAX_RESENDS_PER_HOUR) {
+        toast({
+          title: "Rate limit reached",
+          description: "Maximum of 5 verification emails per hour. Please try again later.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch {}
+
     setIsResendingEmail(true);
     try {
       const { error } = await supabase.auth.resend({
@@ -144,9 +208,19 @@ const Profile = () => {
           variant: "destructive",
         });
       } else {
+        localStorage.setItem(STORAGE_KEY_LAST_RESEND, Date.now().toString());
+        setResendCooldown(RESEND_COOLDOWN_SECS);
+
+        try {
+          const rawHourly = localStorage.getItem(STORAGE_KEY_RESENDS);
+          const timestamps: number[] = rawHourly ? JSON.parse(rawHourly) : [];
+          timestamps.push(Date.now());
+          localStorage.setItem(STORAGE_KEY_RESENDS, JSON.stringify(timestamps));
+        } catch {}
+
         toast({
           title: "Verification email sent",
-          description: "Please check your inbox.",
+          description: "Please check your inbox and click the link to confirm your email.",
         });
       }
     } catch (err) {
@@ -485,10 +559,17 @@ const Profile = () => {
                       <Input
                         id="fullName"
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        onChange={(e) => {
+                          setFullName(e.target.value);
+                          if (nameError) setNameError(null);
+                        }}
                         placeholder="Enter your name"
                         className="max-w-md bg-background/50"
+                        maxLength={60}
                       />
+                      {nameError && (
+                        <p className="text-sm text-destructive">{nameError}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
@@ -507,6 +588,62 @@ const Profile = () => {
                     >
                       {isSaving ? "Saving..." : "Save Changes"}
                     </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Email Verification Card */}
+                <Card className="glass-card">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <ShieldCheck className="w-5 h-5 text-secondary" />
+                        Email Verification
+                      </CardTitle>
+                      {user?.email_confirmed_at ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          Unverified
+                        </span>
+                      )}
+                    </div>
+                    <CardDescription>
+                      {user?.email_confirmed_at
+                        ? "Your email address is verified. Your account and health records are secured."
+                        : "Verify your email to guarantee permanent access to your Ayurvedic health records."}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {!user?.email_confirmed_at && (
+                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 leading-relaxed space-y-2">
+                        <p>
+                          A confirmation link was sent to <strong>{user?.email}</strong>. Clicking it confirms your identity and enables account recovery if you ever forget your password.
+                        </p>
+                        <p className="text-muted-foreground">
+                          Rate limit: up to 5 emails per hour, with a 60-second cooldown between requests.
+                        </p>
+                      </div>
+                    )}
+
+                    {!user?.email_confirmed_at && (
+                      <Button
+                        variant="outline"
+                        onClick={handleResendVerification}
+                        disabled={isResendingEmail || resendCooldown > 0}
+                        className="gap-2"
+                      >
+                        <Mail className="w-4 h-4 text-secondary" />
+                        {isResendingEmail
+                          ? "Sending..."
+                          : resendCooldown > 0
+                          ? `Resend in ${resendCooldown}s`
+                          : "Resend Verification Email"}
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

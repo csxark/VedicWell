@@ -244,3 +244,32 @@ def test_run_migrations_endpoint_failure_with_admin_auth(mock_run):
     )
     assert response.status_code == 500
     assert "DATABASE_URL not set" in response.json()["detail"]
+
+
+def test_predict_rejects_extra_fields():
+    extra_field_input = {**SAMPLE_VATA_INPUT, "unexpectedField": "malicious_payload"}
+    response = client.post("/predict", json=extra_field_input)
+    assert response.status_code == 422
+    data = response.json()
+    assert "extra_forbidden" in str(data) or "unexpectedField" in str(data)
+
+
+def test_predict_rejects_invalid_enum_choice():
+    invalid_input = {**SAMPLE_VATA_INPUT, "bodyFrame": "Super Massive Titan"}
+    response = client.post("/predict", json=invalid_input)
+    assert response.status_code == 422
+
+
+def test_security_headers_present():
+    response = client.get("/")
+    assert response.headers.get("X-Content-Type-Options") == "nosniff"
+    assert response.headers.get("X-Frame-Options") == "DENY"
+    assert response.headers.get("X-XSS-Protection") == "1; mode=block"
+    assert "Strict-Transport-Security" in response.headers
+
+
+def test_payload_size_limit_rejection():
+    # Attempting to post content exceeding 1MB limit
+    oversized_data = {"junk": "x" * (1048576 + 50)}
+    response = client.post("/predict", json=oversized_data)
+    assert response.status_code == 413

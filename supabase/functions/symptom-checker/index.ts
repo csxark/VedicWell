@@ -1,9 +1,20 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
 };
+
+const ALLOWED_DOSHA_TYPES = new Set(["vata", "pitta", "kapha", "tridosha", "Unknown"]);
+const ALLOWED_PAYLOAD_KEYS = new Set(["symptoms", "doshaType", "additionalContext"]);
+
+function sanitizeText(str: unknown): string {
+  if (typeof str !== "string") return "";
+  // Strip control characters and HTML tags
+  return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").replace(/<[^>]*>/g, "").trim();
+}
 
 const AYURVEDIC_SYSTEM_PROMPT = `You are an expert Ayurvedic wellness advisor with deep knowledge of traditional Indian medicine, the three doshas (Vata, Pitta, Kapha), and holistic health practices.
 
@@ -37,20 +48,66 @@ IMPORTANT GUIDELINES:
 
 If symptoms seem serious or indicate a medical emergency, strongly advise seeking immediate professional medical care.`;
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { symptoms, doshaType, additionalContext } = await req.json();
-    
-    if (!symptoms || symptoms.trim() === "") {
+    // Body size limit check: max 50KB (51,200 bytes)
+    const contentLength = req.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > 51200) {
       return new Response(
-        JSON.stringify({ error: "Please describe your symptoms" }),
+        JSON.stringify({ error: "Payload too large. Maximum size is 50KB." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const rawBody = await req.json();
+    if (!rawBody || typeof rawBody !== "object" || Array.isArray(rawBody)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON request body" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Reject unknown/extra fields
+    for (const key of Object.keys(rawBody)) {
+      if (!ALLOWED_PAYLOAD_KEYS.has(key)) {
+        return new Response(
+          JSON.stringify({ error: `Unrecognized or forbidden field: ${key}` }),
+          { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    const sanitizedSymptoms = sanitizeText(rawBody.symptoms);
+    if (!sanitizedSymptoms || sanitizedSymptoms.length < 3) {
+      return new Response(
+        JSON.stringify({ error: "Please describe your symptoms (at least 3 characters)" }),
+        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (sanitizedSymptoms.length > 2000) {
+      return new Response(
+        JSON.stringify({ error: "Symptoms description exceeds maximum length of 2000 characters" }),
+        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const sanitizedContext = rawBody.additionalContext ? sanitizeText(rawBody.additionalContext) : "";
+    if (sanitizedContext.length > 1000) {
+      return new Response(
+        JSON.stringify({ error: "Additional context exceeds maximum length of 1000 characters" }),
+        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    let validDosha = "Unknown";
+    if (rawBody.doshaType && ALLOWED_DOSHA_TYPES.has(rawBody.doshaType)) {
+      validDosha = rawBody.doshaType;
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -63,12 +120,12 @@ serve(async (req) => {
     }
 
     const userMessage = `
-My Dosha Type: ${doshaType || "Unknown - please provide general advice"}
+My Dosha Type: ${validDosha}
 
 My Symptoms:
-${symptoms}
+${sanitizedSymptoms}
 
-${additionalContext ? `Additional Context: ${additionalContext}` : ""}
+${sanitizedContext ? `Additional Context: ${sanitizedContext}` : ""}
 
 Please provide personalized Ayurvedic recommendations based on my dosha type and symptoms.
 `;

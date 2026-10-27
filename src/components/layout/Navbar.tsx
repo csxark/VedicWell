@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogOut, BookOpen } from "lucide-react";
+import { Menu, X, User, LogOut, BookOpen, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LotusIcon } from "@/components/icons/SacredIcons";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,8 +27,18 @@ const navLinks = [
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [dismissBanner, setDismissBanner] = useState(() => {
+    try {
+      return sessionStorage.getItem("dismiss_unverified_banner") === "true";
+    } catch {
+      return false;
+    }
+  });
+
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
+
+  const isUnverified = Boolean(user && !user.email_confirmed_at);
 
   // Only use transparent hero-style navbar on the homepage
   const isHeroPage = location.pathname === "/";
@@ -62,6 +72,31 @@ export const Navbar = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
     >
+      {isUnverified && !dismissBanner && (
+        <div className="bg-amber-500/15 border-b border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs px-4 py-1.5 flex items-center justify-between backdrop-blur-md">
+          <div className="container mx-auto flex items-center justify-center gap-2 text-center">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <span>
+              Your email is unverified.{" "}
+              <Link to="/profile" className="font-semibold underline hover:opacity-80">
+                Verify now in Settings →
+              </Link>
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              setDismissBanner(true);
+              try {
+                sessionStorage.setItem("dismiss_unverified_banner", "true");
+              } catch {}
+            }}
+            className="p-1 hover:opacity-70 text-amber-700 dark:text-amber-300 ml-2"
+            aria-label="Dismiss banner"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
       <nav className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
