@@ -1,4 +1,4 @@
--- ==============================================================================
+﻿-- ==============================================================================
 -- ALL-IN-ONE IDEMPOTENT SUPABASE SETUP & MIGRATION SCRIPT
 -- ==============================================================================
 -- Safe to execute repeatedly on new or existing Supabase databases.
@@ -97,45 +97,90 @@ ALTER TABLE public.dosha_assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.symptom_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_engagement ENABLE ROW LEVEL SECURITY;
 
--- Profiles Policies
+-- Grant anon role schema usage + table-level INSERT/SELECT so guest assessments can be
+-- persisted before a user account exists. RLS policies further restrict what anon can do.
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT INSERT, SELECT ON public.dosha_assessments TO anon;
+
+-- ─── Profiles Policies ────────────────────────────────────────────────────────
+
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
-CREATE POLICY "Users can view their own profile" ON public.profiles FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can view their own profile" ON public.profiles
+  FOR SELECT USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
-CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own profile" ON public.profiles
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
-CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can update their own profile" ON public.profiles
+  FOR UPDATE USING (auth.uid() = user_id);
 
--- Dosha Assessments Authenticated Policies
+DROP POLICY IF EXISTS "Users can delete their own profile" ON public.profiles;
+CREATE POLICY "Users can delete their own profile" ON public.profiles
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ─── Dosha Assessments — Authenticated Policies ───────────────────────────────
+
 DROP POLICY IF EXISTS "Users can view their own assessments" ON public.dosha_assessments;
-CREATE POLICY "Users can view their own assessments" ON public.dosha_assessments FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can view their own assessments" ON public.dosha_assessments
+  FOR SELECT USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can create their own assessments" ON public.dosha_assessments;
-CREATE POLICY "Users can create their own assessments" ON public.dosha_assessments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can create their own assessments" ON public.dosha_assessments
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Authenticated users can update their own assessments" ON public.dosha_assessments;
-CREATE POLICY "Authenticated users can update their own assessments" ON public.dosha_assessments FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Authenticated users can update their own assessments" ON public.dosha_assessments
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
--- Dosha Assessments Guest (anon) Policies
+DROP POLICY IF EXISTS "Users can delete their own assessments" ON public.dosha_assessments;
+CREATE POLICY "Users can delete their own assessments" ON public.dosha_assessments
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ─── Dosha Assessments — Guest (anon) Policies ────────────────────────────────
+
 DROP POLICY IF EXISTS "anon_guests_can_insert_assessment" ON public.dosha_assessments;
-CREATE POLICY "anon_guests_can_insert_assessment" ON public.dosha_assessments FOR INSERT TO anon WITH CHECK (user_id IS NULL AND guest_session_id IS NOT NULL AND claimed_at IS NULL);
+CREATE POLICY "anon_guests_can_insert_assessment" ON public.dosha_assessments
+  FOR INSERT TO anon
+  WITH CHECK (user_id IS NULL AND guest_session_id IS NOT NULL AND claimed_at IS NULL);
 
+-- Allows anon guests to read back their own unclaimed assessment row.
+-- Required so the frontend can confirm a successful insert and retrieve the row ID.
 DROP POLICY IF EXISTS "anon_guests_can_select_own_assessment" ON public.dosha_assessments;
+CREATE POLICY "anon_guests_can_select_own_assessment" ON public.dosha_assessments
+  FOR SELECT TO anon
+  USING (user_id IS NULL AND guest_session_id IS NOT NULL AND claimed_at IS NULL);
 
--- Symptom History Policies
+-- ─── Symptom History Policies ─────────────────────────────────────────────────
+
 DROP POLICY IF EXISTS "Users can view their own symptom history" ON public.symptom_history;
-CREATE POLICY "Users can view their own symptom history" ON public.symptom_history FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can view their own symptom history" ON public.symptom_history
+  FOR SELECT USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can create their own symptom records" ON public.symptom_history;
-CREATE POLICY "Users can create their own symptom records" ON public.symptom_history FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can create their own symptom records" ON public.symptom_history
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- User Engagement Policies
+DROP POLICY IF EXISTS "Users can delete their own symptom records" ON public.symptom_history;
+CREATE POLICY "Users can delete their own symptom records" ON public.symptom_history
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ─── User Engagement Policies ─────────────────────────────────────────────────
+
 DROP POLICY IF EXISTS "Users can view their own engagement" ON public.user_engagement;
-CREATE POLICY "Users can view their own engagement" ON public.user_engagement FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can view their own engagement" ON public.user_engagement
+  FOR SELECT USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can create their own engagement records" ON public.user_engagement;
-CREATE POLICY "Users can create their own engagement records" ON public.user_engagement FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can create their own engagement records" ON public.user_engagement
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own engagement records" ON public.user_engagement;
+CREATE POLICY "Users can delete their own engagement records" ON public.user_engagement
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- ─── 5. Database Functions and Triggers ───────────────────────────────────────
 
@@ -154,7 +199,7 @@ BEFORE UPDATE ON public.profiles
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
--- New user trigger
+-- New user trigger: auto-creates a profile row on first sign-up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -172,6 +217,11 @@ FOR EACH ROW
 EXECUTE FUNCTION public.handle_new_user();
 
 -- Claim Guest Assessment Function (Atomic & Concurrency Protected)
+--
+-- Called via supabase.rpc('claim_guest_assessment', { p_guest_session_id, p_assessment_id }).
+-- NOTE: After running this migration, re-run `npx supabase gen types typescript` and update
+-- src/integrations/supabase/types.ts so the Functions section includes claim_guest_assessment
+-- and supabase.rpc() calls are fully typed.
 CREATE OR REPLACE FUNCTION public.claim_guest_assessment(
   p_guest_session_id TEXT,
   p_assessment_id    UUID
@@ -212,7 +262,7 @@ BEGIN
     guest_session_id          = NULL
   WHERE id = v_row.id;
 
-  -- Update or insert user's profile with dominant dosha
+  -- Update or insert user's profile with dominant dosha (only if not yet set)
   INSERT INTO public.profiles (user_id, dominant_dosha)
   VALUES (v_uid, v_row.dominant_dosha)
   ON CONFLICT (user_id) DO UPDATE
