@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Clock, Tag, ArrowRight, Sparkles, Filter } from "lucide-react";
 import { articlesData } from "@/data/knowledge/articlesData";
@@ -23,6 +23,15 @@ export const ArticlesLibrarySection: React.FC<ArticlesLibrarySectionProps> = ({
     return null;
   });
 
+  useEffect(() => {
+    if (initialArticleId) {
+      const found = articlesData.find((a) => a.id === initialArticleId);
+      if (found) {
+        setReadingArticle(found);
+      }
+    }
+  }, [initialArticleId]);
+
   const filteredArticles = useMemo(() => {
     if (selectedCategory === "all") return articlesData;
     return articlesData.filter((art) => art.category === selectedCategory);
@@ -34,7 +43,7 @@ export const ArticlesLibrarySection: React.FC<ArticlesLibrarySectionProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <Badge variant="outline" className="border-secondary/40 text-secondary bg-secondary/10 uppercase tracking-wider text-xs mb-2">
-            Phase 8 In-Depth Literature
+            Educational Literature
           </Badge>
           <h2 className="font-display text-2xl md:text-4xl text-foreground font-bold">
             Ayurvedic Wisdom & Educational Articles

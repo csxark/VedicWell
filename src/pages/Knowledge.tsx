@@ -180,6 +180,16 @@ const ayurvedaPrinciples = [
   },
 ];
 
+// Helper to normalize dosha strings safely
+function normalizeDosha(val: unknown): DoshaType | null {
+  if (typeof val !== "string") return null;
+  const lower = val.trim().toLowerCase();
+  if (lower === "vata" || lower === "pitta" || lower === "kapha") {
+    return lower as DoshaType;
+  }
+  return null;
+}
+
 const Knowledge = () => {
   const [searchParams] = useSearchParams();
   const { user, profile, loading: authLoading } = useAuth();
@@ -189,6 +199,7 @@ const Knowledge = () => {
   const [guestCache, setGuestCache] = useState<GuestDoshaCache | null>(null);
   const [isCheckingAssessment, setIsCheckingAssessment] = useState(true);
   const [filterByPersonalized, setFilterByPersonalized] = useState(true);
+  const hasInitializedTabRef = React.useRef(false);
 
   // Global UI State
   const [searchQuery, setSearchQuery] = useState("");
@@ -204,12 +215,9 @@ const Knowledge = () => {
   useEffect(() => {
     let isCurrent = true;
     setIsCheckingAssessment(true);
-
-    // Read local guest cache as an immediate baseline
-    const guest = readGuestCache();
-    if (isCurrent && guest) {
-      setGuestCache(guest);
-    }
+    // Reset assessment state to prevent showing prior-user data during fetch or failure
+    setLatestAssessment(null);
+    setGuestCache(readGuestCache());
 
     if (user?.id) {
       fetchLatestUserDosha(user.id)
@@ -239,45 +247,51 @@ const Knowledge = () => {
   // Derive User's Dominant & Secondary Dosha without hardcoding Pitta
   const userDoshaInfo = useMemo(() => {
     if (user?.id) {
-      if (latestAssessment?.dominantDosha) {
+      const dbDominant = normalizeDosha(latestAssessment?.dominantDosha);
+      if (dbDominant) {
         return {
           hasAssessment: true,
-          dominantDosha: latestAssessment.dominantDosha as DoshaType,
-          secondaryDosha: latestAssessment.secondaryDosha || null,
-          vataScore: latestAssessment.vataScore,
-          pittaScore: latestAssessment.pittaScore,
-          kaphaScore: latestAssessment.kaphaScore,
+          dominantDosha: dbDominant,
+          secondaryDosha: normalizeDosha(latestAssessment?.secondaryDosha) || latestAssessment?.secondaryDosha || null,
+          vataScore: latestAssessment?.vataScore ?? 0,
+          pittaScore: latestAssessment?.pittaScore ?? 0,
+          kaphaScore: latestAssessment?.kaphaScore ?? 0,
         };
       }
-      if (profile?.dominant_dosha) {
+      const profileDominant = normalizeDosha(profile?.dominant_dosha);
+      if (profileDominant) {
         return {
           hasAssessment: true,
-          dominantDosha: profile.dominant_dosha.toLowerCase() as DoshaType,
+          dominantDosha: profileDominant,
           secondaryDosha: null,
-          vataScore: profile.vata_percentage,
-          pittaScore: profile.pitta_percentage,
-          kaphaScore: profile.kapha_percentage,
+          vataScore: profile?.vata_percentage ?? 0,
+          pittaScore: profile?.pitta_percentage ?? 0,
+          kaphaScore: profile?.kapha_percentage ?? 0,
         };
       }
-      if (guestCache) {
+      const guestDominant = normalizeDosha(guestCache?.primaryDosha);
+      if (guestDominant) {
         return {
           hasAssessment: true,
-          dominantDosha: guestCache.primaryDosha as DoshaType,
-          secondaryDosha: guestCache.secondaryDosha || null,
-          vataScore: guestCache.vataScore,
-          pittaScore: guestCache.pittaScore,
-          kaphaScore: guestCache.kaphaScore,
+          dominantDosha: guestDominant,
+          secondaryDosha: normalizeDosha(guestCache?.secondaryDosha) || guestCache?.secondaryDosha || null,
+          vataScore: guestCache?.vataScore ?? 0,
+          pittaScore: guestCache?.pittaScore ?? 0,
+          kaphaScore: guestCache?.kaphaScore ?? 0,
         };
       }
     } else if (guestCache) {
-      return {
-        hasAssessment: true,
-        dominantDosha: guestCache.primaryDosha as DoshaType,
-        secondaryDosha: guestCache.secondaryDosha || null,
-        vataScore: guestCache.vataScore,
-        pittaScore: guestCache.pittaScore,
-        kaphaScore: guestCache.kaphaScore,
-      };
+      const guestDominant = normalizeDosha(guestCache.primaryDosha);
+      if (guestDominant) {
+        return {
+          hasAssessment: true,
+          dominantDosha: guestDominant,
+          secondaryDosha: normalizeDosha(guestCache.secondaryDosha) || guestCache.secondaryDosha || null,
+          vataScore: guestCache.vataScore ?? 0,
+          pittaScore: guestCache.pittaScore ?? 0,
+          kaphaScore: guestCache.kaphaScore ?? 0,
+        };
+      }
     }
 
     return {
@@ -290,12 +304,22 @@ const Knowledge = () => {
     };
   }, [user?.id, latestAssessment, profile, guestCache]);
 
-  // Set default dosha tab when personalization loads
+  // Set default dosha tab when personalization loads without overwriting URL params or manual selections
   useEffect(() => {
-    if (userDoshaInfo.hasAssessment && userDoshaInfo.dominantDosha && filterByPersonalized) {
-      setSelectedDoshaTab(userDoshaInfo.dominantDosha);
+    const doshaParam = searchParams.get("dosha");
+    if (doshaParam) {
+      return; // Do not overwrite explicit URL parameter
     }
-  }, [userDoshaInfo, filterByPersonalized]);
+    if (
+      !hasInitializedTabRef.current &&
+      userDoshaInfo.hasAssessment &&
+      userDoshaInfo.dominantDosha &&
+      filterByPersonalized
+    ) {
+      setSelectedDoshaTab(userDoshaInfo.dominantDosha);
+      hasInitializedTabRef.current = true;
+    }
+  }, [userDoshaInfo.hasAssessment, userDoshaInfo.dominantDosha, filterByPersonalized, searchParams]);
 
   // 2. Handle URL Query Parameters (Deep Linking)
   useEffect(() => {
@@ -360,20 +384,82 @@ const Knowledge = () => {
     }
   };
 
-  // Handler to open Food Modal by exact or partial name
+  // Handler to open Food Modal by exact, partial, plural, or multi-item name
   const handleSelectFoodByName = (foodName: string) => {
-    const cleanName = foodName.split("(")[0].trim().toLowerCase();
-    const found = foodsData.find(
-      (f) =>
-        f.name.toLowerCase().includes(cleanName) ||
-        f.hindiName.toLowerCase().includes(cleanName) ||
-        f.sanskritName.toLowerCase().includes(cleanName)
-    );
+    const toSingular = (str: string) => {
+      const trimmed = str.trim();
+      if (trimmed.endsWith("ies")) return trimmed.slice(0, -3) + "y";
+      if (trimmed.endsWith("es")) return trimmed.slice(0, -2);
+      if (trimmed.endsWith("s") && !trimmed.endsWith("ss")) return trimmed.slice(0, -1);
+      return trimmed;
+    };
+
+    const inputClean = foodName.split("(")[0].trim().toLowerCase();
+    const inputSingular = toSingular(inputClean);
+    const inputParts = foodName
+      .toLowerCase()
+      .split(/[,&/+]|\band\b/)
+      .map((p) => p.split("(")[0].trim())
+      .filter((p) => p.length > 1);
+
+    const found = foodsData.find((f) => {
+      const fNameLower = f.name.toLowerCase();
+      const catClean = f.name.split("(")[0].trim().toLowerCase();
+      const catSingular = toSingular(catClean);
+      const hindi = f.hindiName.toLowerCase();
+      const sanskrit = f.sanskritName.toLowerCase();
+
+      // 1. Direct or reciprocal substring match on food name
+      if (
+        fNameLower.includes(inputClean) ||
+        inputClean.includes(catClean) ||
+        catClean.includes(inputClean)
+      ) {
+        return true;
+      }
+
+      // 2. Singular / Plural match
+      if (
+        inputSingular.length > 2 &&
+        (catSingular.includes(inputSingular) ||
+          inputSingular.includes(catSingular) ||
+          catClean.includes(inputSingular) ||
+          inputClean.includes(catSingular))
+      ) {
+        return true;
+      }
+
+      // 3. Multi-item parts match (e.g. "Dates & figs", "Soaked almonds")
+      for (const part of inputParts) {
+        const partSingular = toSingular(part);
+        if (
+          part.includes(catClean) ||
+          catClean.includes(part) ||
+          (partSingular.length > 2 &&
+            (catSingular.includes(partSingular) || partSingular.includes(catSingular)))
+        ) {
+          return true;
+        }
+      }
+
+      // 4. Hindi & Sanskrit match
+      if (
+        hindi.includes(inputClean) ||
+        inputClean.includes(hindi) ||
+        sanskrit.includes(inputClean) ||
+        inputClean.includes(sanskrit)
+      ) {
+        return true;
+      }
+
+      return false;
+    });
+
     if (found) {
       setUrlFoodModal(found);
     } else {
-      // If not in specific 40 foods, filter the explorer
-      setSearchQuery(cleanName);
+      // If not in specific catalog foods, filter the explorer
+      setSearchQuery(inputClean);
       handleSectionClick("food-explorer");
     }
   };
@@ -489,7 +575,14 @@ const Knowledge = () => {
               </p>
             </div>
 
-            <Tabs value={selectedDoshaTab} onValueChange={setSelectedDoshaTab} className="space-y-6">
+            <Tabs
+              value={selectedDoshaTab}
+              onValueChange={(val) => {
+                hasInitializedTabRef.current = true;
+                setSelectedDoshaTab(val);
+              }}
+              className="space-y-6"
+            >
               <TabsList className="bg-muted/60 p-1 rounded-2xl border border-border/80 w-full sm:w-auto justify-start flex-wrap h-auto gap-1">
                 {Object.entries(doshaDetails).map(([key, dosha]) => (
                   <TabsTrigger
@@ -679,6 +772,7 @@ const Knowledge = () => {
           >
             <RecipeLibrarySection
               initialDosha={userDoshaInfo.dominantDosha || undefined}
+              initialRecipeId={searchParams.get("recipe") || undefined}
             />
           </motion.section>
 
@@ -724,7 +818,9 @@ const Knowledge = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <ArticlesLibrarySection />
+            <ArticlesLibrarySection
+              initialArticleId={searchParams.get("article") || undefined}
+            />
           </motion.section>
 
           {/* SECTION 12: FREQUENTLY ASKED QUESTIONS (PHASE 12) */}

@@ -17,7 +17,7 @@ export const AgniAndDigestionSection: React.FC = () => {
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-2">
         <Badge variant="outline" className="border-secondary/40 text-secondary bg-secondary/10 uppercase tracking-wider text-xs">
-          Phase 10 Metabolic Science
+          Metabolic Science
         </Badge>
         <h2 className="font-display text-2xl md:text-4xl text-foreground font-bold">
           Digestion and Agni (The Internal Fire)

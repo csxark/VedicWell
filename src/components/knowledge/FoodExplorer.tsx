@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, 
@@ -40,6 +40,14 @@ export const FoodExplorer: React.FC<FoodExplorerProps> = ({
   const [selectedSuitability, setSelectedSuitability] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"cards" | "matrix">("cards");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
+
+  useEffect(() => {
+    setSearch(initialSearch);
+  }, [initialSearch]);
+
+  useEffect(() => {
+    setSelectedDosha(initialDosha || "all");
+  }, [initialDosha]);
 
   // Filtered foods
   const filteredFoods = useMemo(() => {

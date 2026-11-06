@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Wind, 
@@ -227,6 +227,12 @@ export const DoshaFoodGuideSection: React.FC<DoshaFoodGuideSectionProps> = ({
 }) => {
   const [selectedDosha, setSelectedDosha] = useState<DoshaType>(initialDosha);
 
+  useEffect(() => {
+    if (initialDosha) {
+      setSelectedDosha(initialDosha);
+    }
+  }, [initialDosha]);
+
   const getGuide = (dosha: DoshaType) => {
     switch (dosha) {
       case "pitta":
@@ -246,7 +252,7 @@ export const DoshaFoodGuideSection: React.FC<DoshaFoodGuideSectionProps> = ({
       {/* Section Header */}
       <div className="text-center max-w-3xl mx-auto space-y-2">
         <Badge variant="outline" className="border-secondary/40 text-secondary bg-secondary/10 uppercase tracking-wider text-xs">
-          Phase 2 Core Knowledge
+          Dietary Wisdom by Constitution
         </Badge>
         <h2 className="font-display text-2xl md:text-4xl text-foreground font-bold">
           Dosha-Specific Food Recommendation Library

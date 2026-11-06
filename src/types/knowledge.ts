@@ -23,7 +23,7 @@ export interface FoodItem {
   tastes: string[]; // Rasa: Madhura (Sweet), Amla (Sour), Lavana (Salty), Katu (Pungent), Tikta (Bitter), Kashaya (Astringent)
   qualities: string[]; // Guna: Guru (Heavy), Laghu (Light), Snigdha (Unctuous), Ruksha (Dry), Sheeta (Cooling), Ushna (Heating)
   virya: string; // Thermal potency: Sheeta (Cooling), Ushna (Heating), or Anushna-sheeta (Neutral)
-  vipaka: "Madhura (Sweet)" | "Amla (Sour)" | "Katu (Pungent)";
+  vipaka: string; // Post-digestive transformation: Madhura (Sweet), Amla (Sour), or Katu (Pungent)
   prabhava?: string; // Special non-linear metabolic effect
   vataSuitability: Suitability;
   vataPerspective: string;
@@ -94,7 +94,12 @@ export interface HerbSpice {
   hindiName: string;
   botanicalName: string;
   rasa: string[];
-  virya: "Ushna (Heating)" | "Sheeta (Cooling)" | "Neutral";
+  virya:
+    | "Ushna (Heating)"
+    | "Sheeta (Cooling)"
+    | "Neutral"
+    | "Anushna (Balanced / Mild)"
+    | "Sheeta (Cooling) / Neutral";
   vipaka: "Katu (Pungent)" | "Madhura (Sweet)" | "Amla (Sour)";
   doshaEffects: {
     vata: string;

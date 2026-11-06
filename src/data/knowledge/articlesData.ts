@@ -180,7 +180,7 @@ export const articlesData: AyurvedicArticle[] = [
     classicalReferences: [
       "Ashtanga Hridaya Sutrasthana 2/1: 'One should wake up during Brahma Muhurta (the ambrosial hours before dawn) for preserving one's health and life.'",
     ],
-    modernContextNote: "Awarded the 2017 Nobel Prize in Physiology or Medicine, circadian rhythm biology verifies that cellular metabolic genes cycle in precise 24-hour patterns matching Ayurvedic Dinacharya.",
+    modernContextNote: "The 2017 Nobel Prize in Physiology or Medicine recognized discoveries of molecular mechanisms controlling circadian rhythms, scientific research that underscores how cellular metabolic gene expression cycles in 24-hour patterns closely aligned with classical Ayurvedic Dinacharya.",
     tags: ["Dinacharya", "Circadian Rhythm", "Morning Routine", "Abhyanga", "Longevity"],
     featured: true,
   },

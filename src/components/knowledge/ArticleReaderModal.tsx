@@ -28,11 +28,17 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 }) => {
   if (!article) return null;
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const url = `${window.location.origin}/knowledge?article=${article.id}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-      toast.success("Article link copied to clipboard!");
+    if (navigator?.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("Article link copied to clipboard!");
+      } catch {
+        toast.error("Failed to copy article link to clipboard.");
+      }
+    } else {
+      toast.error("Clipboard API is not supported in this browser.");
     }
   };
 

@@ -53,11 +53,17 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
     }
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const url = `${window.location.origin}/knowledge?recipe=${recipe.id}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-      toast.success("Recipe link copied to clipboard!");
+    if (navigator?.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("Recipe link copied to clipboard!");
+      } catch {
+        toast.error("Failed to copy recipe link to clipboard.");
+      }
+    } else {
+      toast.error("Clipboard API is not supported in this browser.");
     }
   };
 

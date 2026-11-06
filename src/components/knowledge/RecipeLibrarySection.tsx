@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Utensils, 
@@ -20,14 +20,34 @@ import { RecipeDetailModal } from "./RecipeDetailModal";
 
 interface RecipeLibrarySectionProps {
   initialDosha?: DoshaType;
+  initialRecipeId?: string;
 }
 
 export const RecipeLibrarySection: React.FC<RecipeLibrarySectionProps> = ({
   initialDosha,
+  initialRecipeId,
 }) => {
   const [selectedDosha, setSelectedDosha] = useState<string>(initialDosha || "all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [activeRecipe, setActiveRecipe] = useState<Recipe | null>(null);
+  const [activeRecipe, setActiveRecipe] = useState<Recipe | null>(() => {
+    if (initialRecipeId) {
+      return recipesData.find((r) => r.id === initialRecipeId) || null;
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    setSelectedDosha(initialDosha || "all");
+  }, [initialDosha]);
+
+  useEffect(() => {
+    if (initialRecipeId) {
+      const found = recipesData.find((r) => r.id === initialRecipeId);
+      if (found) {
+        setActiveRecipe(found);
+      }
+    }
+  }, [initialRecipeId]);
 
   const filteredRecipes = useMemo(() => {
     return recipesData.filter((recipe) => {
@@ -79,7 +99,7 @@ export const RecipeLibrarySection: React.FC<RecipeLibrarySectionProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <Badge variant="outline" className="border-secondary/40 text-secondary bg-secondary/10 uppercase tracking-wider text-xs mb-2">
-            Phase 7 Healing Kitchen
+            Ayurvedic Kitchen
           </Badge>
           <h2 className="font-display text-2xl md:text-4xl text-foreground font-bold">
             Ayurvedic Recipe Collection & Meal Ideas

@@ -335,7 +335,7 @@ export const foodsData: FoodItem[] = [
     tastes: ["Madhura (Sweet)", "Kashaya (Astringent)"],
     qualities: ["Guru (Heavy)", "Snigdha (Unctuous)", "Sheeta (Cooling)"],
     virya: "Sheeta (Cooling)",
-    vipaka: "Amla (Sour - in later digestive phase)",
+    vipaka: "Amla (Sour)",
     prabhava: "Brimhana & Mamsavardhaka (Builds muscle and physical mass)",
     vataSuitability: "favored",
     vataPerspective: "Grounding, nourishing, and unctuous. Calms dry erratic energy and supplies instant steady carbohydrates.",
