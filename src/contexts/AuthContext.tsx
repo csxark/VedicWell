@@ -204,22 +204,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // THEN check for existing session with comprehensive error handling
+    supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (error) {
+          console.warn("Supabase session check notice (backend may be unreachable):", error.message);
+          setLoading(false);
+          return;
+        }
 
-      if (session?.user) {
-        tryClaimGuestAssessment(session.user.id).then(() => {
-          fetchProfile(session.user.id).then((profileData) => {
-            setProfile(profileData);
-            setLoading(false);
-          });
-        });
-      } else {
+        const session = data?.session;
+        setSession(session ?? null);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          tryClaimGuestAssessment(session.user.id)
+            .catch((claimErr) => {
+              console.warn("Guest assessment claim notice:", claimErr);
+            })
+            .finally(() => {
+              fetchProfile(session.user.id)
+                .then((profileData) => {
+                  setProfile(profileData);
+                })
+                .catch((profErr) => {
+                  console.warn("Profile fetch notice:", profErr);
+                })
+                .finally(() => {
+                  setLoading(false);
+                });
+            });
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.warn("Supabase connection unavailable (offline or invalid project ref):", err?.message || err);
         setLoading(false);
-      }
-    });
+      });
 
     return () => subscription.unsubscribe();
   }, []);

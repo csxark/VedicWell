@@ -35,3 +35,16 @@ backend/.venv/
 backend/venv/
 backend/.pytest_cache/
 .vscode/
+.agent/
+.agents/
+.gsd/
+.gemini/
+.scripts/
+model_capabilities.yaml
+VERSION
+
+PROJECT_RULES.md
+GSD-STYLE.md
+
+adapters/
+scripts/

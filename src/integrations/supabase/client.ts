@@ -5,6 +5,36 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// Safe fetch wrapper that prevents infinite retry storms when the Supabase project
+// domain is paused, deleted, or unresolvable via DNS.
+const safeFetch: typeof fetch = async (input, init) => {
+  try {
+    return await fetch(input, init);
+  } catch (err: unknown) {
+    const urlString =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+        ? input.toString()
+        : (input as Request).url;
+
+    if (urlString.includes("/auth/v1/token")) {
+      try {
+        // Clear stale auth token to stop repetitive AuthRetryableFetchError loops
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch {
+        // Ignore storage errors in restricted contexts
+      }
+    }
+    throw err;
+  }
+};
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
@@ -13,5 +43,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+  },
+  global: {
+    fetch: safeFetch,
+  },
 });
