@@ -2,9 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
-  BookOpen, Wind, Flame, Mountain, Leaf, Heart, 
-  Brain, Moon, Sun, Droplets, ChevronDown, ChevronUp,
-  Sparkles, Compass, Utensils, CheckCircle2, AlertTriangle
+  BookOpen, Wind, Flame, Mountain, Leaf, 
+  Brain, Moon, Sun, Sparkles, Compass, Utensils, CheckCircle2, AlertTriangle, Info
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/landing/Footer";
@@ -47,6 +46,8 @@ const doshaDetails = {
     textColor: "text-sky-600 dark:text-sky-400",
     bgColor: "bg-sky-500/10",
     icon: Wind,
+    simpleDescription:
+      "Vata is the energy of movement. It governs your breath, circulation, thoughts, and nervous system. When balanced, Vata makes you creative, energetic, and adaptable. When out of balance, it can bring anxiety, dryness, and irregular digestion.",
     qualities: ["Laghu (Light)", "Sheeta (Cold)", "Ruksha (Dry)", "Khara (Rough)", "Chala (Mobile)", "Sukshma (Subtle)", "Vishada (Clear)"],
     characteristics: [
       "Quick, creative, inventive, and imaginative mind",
@@ -82,6 +83,8 @@ const doshaDetails = {
     textColor: "text-orange-600 dark:text-orange-400",
     bgColor: "bg-orange-500/10",
     icon: Flame,
+    simpleDescription:
+      "Pitta is the energy of transformation. It governs digestion, metabolism, body temperature, and your sharpness of mind. When balanced, Pitta makes you focused, confident, and courageous. When out of balance, it can bring irritability, heartburn, and skin inflammation.",
     qualities: ["Sasneha (Slightly Oily)", "Tikshna (Sharp)", "Ushna (Hot)", "Laghu (Light)", "Visra (Fleshy odor)", "Sara (Spreading)", "Drava (Liquid)"],
     characteristics: [
       "Sharp, penetrating intellect, logical mind, and focused precision",
@@ -117,6 +120,8 @@ const doshaDetails = {
     textColor: "text-emerald-600 dark:text-emerald-400",
     bgColor: "bg-emerald-500/10",
     icon: Mountain,
+    simpleDescription:
+      "Kapha is the energy of structure and stability. It governs your strength, immunity, joints, and emotional steadiness. When balanced, Kapha makes you calm, loving, and resilient. When out of balance, it can bring sluggishness, congestion, and weight gain.",
     qualities: ["Guru (Heavy)", "Manda (Slow)", "Sheeta (Cold)", "Snigdha (Unctuous)", "Shlakshna (Smooth)", "Mritsna (Sticky)", "Sthira (Stable)", "Sandra (Dense)"],
     characteristics: [
       "Calm, loving, forgiving, grounded, and loyal disposition",
@@ -151,32 +156,44 @@ const ayurvedaPrinciples = [
   {
     title: "The Science of Life (Ayurveda)",
     icon: BookOpen,
-    content: "Originating in India over 5,000 years ago, Ayurveda ('Ayu' = life, 'Veda' = science) views health as dynamic harmony between mind, body, senses, and environment, rather than mere symptom management.",
+    what: "A 5,000-year-old system of natural health from India.",
+    why: "It sees health as harmony between mind, body, senses, and environment — not just the absence of disease.",
+    everyday: "It offers gentle, personal guidance for daily routines, food, and rest that fits your unique body.",
   },
   {
     title: "The Five Elements (Pancha Mahabhutas)",
     icon: Leaf,
-    content: "Everything in the universe is composed of Space (Akasha), Air (Vayu), Fire (Tejas), Water (Jala), and Earth (Prithvi). These elemental building blocks pair to construct the three doshas.",
+    what: "Everything in nature is built from Space, Air, Fire, Water, and Earth.",
+    why: "These elements pair up to form the three doshas that shape your body and mind.",
+    everyday: "You can feel them in the warmth of food, the coolness of water, and the steadiness of the ground.",
   },
   {
-    title: "Mind-Body Nexus",
+    title: "Mind-Body Connection",
     icon: Brain,
-    content: "Ayurveda recognizes mental stress and emotional toxins (Manasika Ama) as direct root causes of physical illness, treating psychological and somatic health as inseparable.",
+    what: "Your thoughts and emotions directly affect your physical health.",
+    why: "Ayurveda treats mental stress and emotional strain as root causes of physical illness.",
+    everyday: "A calm mind supports good digestion, sound sleep, and steady energy.",
   },
   {
-    title: "Circadian Rhythms (Dinacharya)",
+    title: "Daily Rhythm (Dinacharya)",
     icon: Sun,
-    content: "Nature operates in 4-hour doshic waves: Kapha (6-10), Pitta (10-2), and Vata (2-6). Syncing meals, workouts, and sleep to this biological clock optimizes metabolic efficiency.",
+    what: "Nature moves through 4-hour cycles of Kapha, Pitta, and Vata energy each day.",
+    why: "Aligning meals, activity, and sleep with this natural clock supports digestion and vitality.",
+    everyday: "Simple habits like waking early and eating at regular times keep your rhythm steady.",
   },
   {
     title: "Digestive Fire (Agni)",
     icon: Flame,
-    content: "Central to Ayurveda is Agni, the biological fire governing digestion, enzymatic breakdown, and cellular assimilation. Weak Agni leads to toxic intermediate waste (Ama).",
+    what: "Agni is the digestive fire that breaks down food and absorbs nourishment.",
+    why: "Strong digestion creates energy; weak digestion leaves behind residue (Ama) that weighs you down.",
+    everyday: "Eating warm, freshly cooked meals and avoiding ice-cold drinks keeps your digestion comfortable.",
   },
   {
     title: "Seasonal Routines (Ritucharya)",
     icon: Moon,
-    content: "Adapting nutrition and daily habits across the six Indian seasons prevents seasonal doshic aggravation and preserves immune vitality (Ojas) throughout the year.",
+    what: "Adjust food and daily habits across the six Indian seasons.",
+    why: "Changing with the seasons prevents seasonal imbalance and protects your immunity (Ojas).",
+    everyday: "Favor warming soups in winter and light, hydrating foods in summer.",
   },
 ];
 
@@ -533,19 +550,41 @@ const Knowledge = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ayurvedaPrinciples.map((principle, index) => (
-                <Card key={principle.title} className="glass-card hover:shadow-lg transition-all border border-border/80 flex flex-col justify-between">
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center mb-2 shadow-sm text-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {ayurvedaPrinciples.map((principle) => (
+                <Card
+                  key={principle.title}
+                  className="border border-border/80 shadow-sm flex flex-col h-full"
+                >
+                  <CardHeader className="pb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center mb-3 text-secondary shadow-sm">
                       <principle.icon className="w-6 h-6" />
                     </div>
-                    <CardTitle className="text-lg font-display">{principle.title}</CardTitle>
+                    <CardTitle className="text-lg font-display leading-tight">
+                      {principle.title}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">
-                      {principle.content}
-                    </p>
+                  <CardContent className="space-y-3 pt-0 flex-1">
+                    <div className="space-y-1.5">
+                      <div className="flex items-start gap-2">
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">
+                          What it is
+                        </span>
+                        <p className="text-sm text-foreground/90 leading-relaxed">{principle.what}</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">
+                          Why it matters
+                        </span>
+                        <p className="text-sm text-foreground/90 leading-relaxed">{principle.why}</p>
+                      </div>
+                      <div className="flex items-start gap-2 pt-1">
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">
+                          In everyday life
+                        </span>
+                        <p className="text-sm text-foreground/90 leading-relaxed">{principle.everyday}</p>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -570,9 +609,77 @@ const Knowledge = () => {
                   Understanding the Three Doshas
                 </h2>
               </div>
-              <p className="text-xs md:text-sm text-muted-foreground max-w-md">
-                Explore the traits, imbalance signs, balancing tips, and essential foods for Vata, Pitta, and Kapha.
+              <p className="text-sm md:text-base text-muted-foreground max-w-xl">
+                Vata, Pitta, and Kapha are the three doshas — natural body energies described in Ayurveda.
+                A dosha is simply your unique blend of elements that shapes your digestion, mood, and energy.
+                Learn what each one means, how to recognize balance, and which foods traditionally suit you.
               </p>
+            </div>
+
+            {/* Plain-language Dosha introduction */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {[
+                {
+                  key: "vata",
+                  name: "Vata",
+                  elements: "Air & Space",
+                  icon: Wind,
+                  color: "text-sky-600 dark:text-sky-400",
+                  bg: "bg-sky-500/10",
+                  border: "border-sky-500/20",
+                  plain: "The energy of movement — governs breathing, circulation, and the nervous system.",
+                  sign: "When balanced: creative, energetic, and flexible.",
+                },
+                {
+                  key: "pitta",
+                  name: "Pitta",
+                  elements: "Fire & Water",
+                  icon: Flame,
+                  color: "text-orange-600 dark:text-orange-400",
+                  bg: "bg-orange-500/10",
+                  border: "border-orange-500/20",
+                  plain: "The energy of transformation — governs digestion, metabolism, and body temperature.",
+                  sign: "When balanced: sharp, focused, and confident.",
+                },
+                {
+                  key: "kapha",
+                  name: "Kapha",
+                  elements: "Earth & Water",
+                  icon: Mountain,
+                  color: "text-emerald-600 dark:text-emerald-400",
+                  bg: "bg-emerald-500/10",
+                  border: "border-emerald-500/20",
+                  plain: "The energy of structure — governs strength, stability, and immunity.",
+                  sign: "When balanced: calm, steady, and loving.",
+                },
+              ].map((d) => (
+                <Card
+                  key={d.key}
+                  className={cn(
+                    "border border-border/80 shadow-sm p-5 md:p-6 flex flex-col h-full",
+                    d.border,
+                    d.bg,
+                  )}
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${d.color} shadow-sm`}>
+                      <d.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className={`font-display text-xl font-bold ${d.color} leading-tight`}>
+                        {d.name} Dosha
+                      </h3>
+                      <p className="text-xs font-medium text-muted-foreground">{d.elements}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground/90 leading-relaxed mb-3">
+                    {d.plain}
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-auto">
+                    {d.sign}
+                  </p>
+                </Card>
+              ))}
             </div>
 
             <Tabs
@@ -598,133 +705,179 @@ const Knowledge = () => {
 
               {Object.entries(doshaDetails).map(([key, dosha]) => (
                 <TabsContent key={key} value={key} className="space-y-6 mt-4">
-                  {/* Dosha Header Card */}
+                  {/* Dosha Header Card: name, elements, simple explanation */}
                   <Card className={cn("overflow-hidden border border-border/80 shadow-sm", dosha.bgColor)}>
                     <div className={`h-2.5 bg-gradient-to-r ${dosha.color}`} />
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-6 flex-wrap">
+                    <CardContent className="pt-6 pb-8">
+                      <div className="flex items-start gap-6 md:gap-8 flex-wrap">
                         <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${dosha.color} flex items-center justify-center shadow-md shrink-0`}>
                           <dosha.icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
                         </div>
-                        <div className="space-y-1">
-                          <h3 className={`font-display text-2xl md:text-3xl font-bold ${dosha.textColor}`}>
-                            {dosha.name} Dosha
-                          </h3>
-                          <p className="text-muted-foreground text-sm font-medium">{dosha.element}</p>
-                          <div className="flex flex-wrap gap-1.5 pt-2">
-                            {dosha.qualities.map((quality) => (
-                              <span
-                                key={quality}
-                                className="px-2.5 py-1 rounded-lg text-xs bg-card/90 text-foreground border border-border/60 shadow-2xs"
-                              >
-                                {quality}
-                              </span>
-                            ))}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <h3 className={`font-display text-2xl md:text-3xl font-bold ${dosha.textColor} leading-tight`}>
+                              {dosha.name} Dosha
+                            </h3>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${dosha.textColor} border border-current/40`}>
+                              {dosha.element}
+                            </span>
                           </div>
+                          <p className="text-sm text-foreground/90 leading-relaxed">
+                            {dosha.simpleDescription}
+                          </p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Characteristics */}
-                    <Card className="glass-card">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {/* Traditional characteristics (Sanskrit + English) */}
+                    <Card className="border border-border/80 shadow-sm">
                       <CardHeader className="pb-3">
                         <CardTitle className="flex items-center gap-2 text-base font-display">
-                          <Heart className="w-5 h-5 text-secondary" />
-                          Key Characteristics
+                          <BookOpen className="w-5 h-5 text-secondary" />
+                          Traditional Characteristics
                         </CardTitle>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mt-1">
+                          Sanskrit term → Plain meaning
+                        </p>
                       </CardHeader>
-                      <CardContent>
-                        <ul className="space-y-2 text-xs md:text-sm">
-                          {dosha.characteristics.map((char, i) => (
-                            <li key={i} className="flex items-start gap-2.5 text-muted-foreground">
-                              <Leaf className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                              <span className="leading-relaxed">{char}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
-
-                    {/* Imbalance Signs */}
-                    <Card className="glass-card">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 text-base font-display">
-                          <Droplets className="w-5 h-5 text-secondary" />
-                          Signs of Imbalance
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="space-y-2 text-xs md:text-sm">
-                          {dosha.imbalanceSigns.map((sign, i) => (
-                            <li key={i} className="flex items-start gap-2.5 text-muted-foreground">
-                              <AlertTriangle className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                              <span className="leading-relaxed">{sign}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
-
-                    {/* Balancing Tips */}
-                    <Card className="glass-card">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 text-base font-display">
-                          <Sun className="w-5 h-5 text-secondary" />
-                          Balancing Tips
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="space-y-2 text-xs md:text-sm">
-                          {dosha.balancingTips.map((tip, i) => (
-                            <li key={i} className="flex items-start gap-2.5 text-muted-foreground">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                              <span className="leading-relaxed">{tip}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
-
-                    {/* Quick Food Snapshot */}
-                    <Card className="glass-card">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 text-base font-display">
-                          <Utensils className="w-5 h-5 text-secondary" />
-                          Dietary Guidance Snapshot
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4 text-xs">
-                        <div>
-                          <p className="font-semibold text-foreground mb-1.5">Top Foods to Favor:</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {dosha.bestFoods.map((food) => (
-                              <button
-                                key={food}
-                                onClick={() => handleSelectFoodByName(food)}
-                                className="px-2.5 py-1 rounded-md text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
-                              >
-                                {food}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-foreground mb-1.5">Foods to Moderate:</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {dosha.avoidFoods.map((food) => (
-                              <span
-                                key={food}
-                                className="px-2.5 py-1 rounded-md text-xs bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20"
-                              >
-                                {food}
+                      <CardContent className="space-y-2 pt-0">
+                        {dosha.qualities.map((quality) => {
+                          const [term, meaning] = quality.split(" (");
+                          return (
+                            <div key={term} className="flex items-start gap-2 text-sm leading-relaxed">
+                              <span className="text-muted-foreground/70 shrink-0">{term}</span>
+                              <span className="text-foreground">
+                                → {meaning?.replace(")", "") || ""}
                               </span>
-                            ))}
-                          </div>
+                            </div>
+                          );
+                        })}
+                      </CardContent>
+                    </Card>
+
+                    {/* What balance looks like */}
+                    <Card className="border border-border/80 shadow-sm bg-emerald-50/40 dark:bg-emerald-950/20">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          <CardTitle className="text-base font-display">When Balanced</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-0">
+                        <ul className="text-sm text-foreground/90 leading-relaxed space-y-2">
+                          {dosha.characteristics.map((char, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <span className="text-emerald-500 shrink-0 mt-0.5">✓</span>
+                              <span>{char}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+
+                    {/* Signs of imbalance */}
+                    <Card className="border border-border/80 shadow-sm bg-rose-50/40 dark:bg-rose-950/20">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5 text-rose-500 dark:text-rose-400" />
+                          <CardTitle className="text-base font-display">Signs of Imbalance</CardTitle>
+                        </div>
+                        <p className="text-[10px] uppercase tracking-wider text-rose-600 dark:text-rose-400 font-semibold mt-1">
+                          Traditional Ayurvedic descriptions, not a medical diagnosis
+                        </p>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-0">
+                        <ul className="text-sm text-foreground/90 leading-relaxed space-y-2">
+                          {dosha.imbalanceSigns.map((sign, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <span className="text-rose-500 shrink-0 mt-0.5">!</span>
+                              <span>{sign}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+
+                    {/* Balancing tips */}
+                    <Card className="border border-border/80 shadow-sm bg-amber-50/40 dark:bg-amber-950/20">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                          <CardTitle className="text-base font-display">Everyday Balancing Tips</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-0">
+                        <ul className="text-sm text-foreground/90 leading-relaxed space-y-2">
+                          {dosha.balancingTips.map((tip, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <span className="text-amber-500 shrink-0 mt-0.5">→</span>
+                              <span>{tip}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+
+                    {/* Foods to favor */}
+                    <Card className="border border-border/80 shadow-sm">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <Utensils className="w-5 h-5 text-secondary" />
+                          <CardTitle className="text-base font-display">Foods to Favor</CardTitle>
+                        </div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mt-1">
+                          Traditionally supportive choices
+                        </p>
+                      </CardHeader>
+                      <CardContent className="space-y-3 pt-0">
+                        <div className="flex flex-wrap gap-2">
+                          {dosha.bestFoods.map((food) => (
+                            <button
+                              key={food}
+                              onClick={() => handleSelectFoodByName(food)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
+                            >
+                              {food}
+                            </button>
+                          ))}
                         </div>
                       </CardContent>
                     </Card>
+
+                    {/* Foods to moderate */}
+                    <Card className="border border-border/80 shadow-sm">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5 text-rose-500 dark:text-rose-400" />
+                          <CardTitle className="text-base font-display">Foods to Moderate</CardTitle>
+                        </div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mt-1">
+                          Best enjoyed occasionally and in small portions
+                        </p>
+                      </CardHeader>
+                      <CardContent className="space-y-3 pt-0">
+                        <div className="flex flex-wrap gap-2">
+                          {dosha.avoidFoods.map((food) => (
+                            <span key={food} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20">
+                              {food}
+                            </span>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Disclaimer */}
+                  <div className="p-4 rounded-xl border border-border/80 bg-muted/50 flex items-start gap-3 text-xs text-muted-foreground leading-relaxed">
+                    <Info className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Traditional perspective only. </strong>
+                      These descriptions come from classical Ayurveda and are shared for educational purposes. They
+                      are not a medical diagnosis and do not replace professional medical advice. If you have a health
+                      condition or concern, consult a qualified healthcare practitioner.
+                    </div>
                   </div>
                 </TabsContent>
               ))}

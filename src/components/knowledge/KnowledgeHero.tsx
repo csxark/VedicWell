@@ -202,7 +202,7 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
             <Search className="w-5 h-5 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />
             <Input
               type="text"
-              placeholder="Search across 40+ foods, recipes, spices, articles (e.g. Turmeric, Khichdi, Pitta cooling, Agni)..."
+              placeholder="Search for a food, such as rice, wheat or barley..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-12 pr-10 py-6 text-sm md:text-base rounded-2xl bg-card/80 border-border/80 shadow-md backdrop-blur focus-visible:ring-secondary"

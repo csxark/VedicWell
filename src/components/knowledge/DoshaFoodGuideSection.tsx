@@ -39,8 +39,11 @@ const vataFoodGuide = {
   borderColor: "border-sky-500/30",
   bgColor: "bg-sky-500/10",
   dietaryEmphasis: "Warm, nourishing, moist, grounding, and appropriately cooked foods with healthy fats.",
-  traditionalRationale: 
-    "In classical Ayurveda (Charaka Samhita Sutrasthana 1/59), Vata is defined by the qualities of Ruksha (Dry), Sheeta (Cold), Laghu (Light), Sukshma (Subtle), Chala (Mobile), Vishada (Clear), and Khara (Rough). According to the foundational principle 'Sarvada Sarva Bhavanam Samanyam Vriddhi Karanam, Hrasa Hetur Visheshashcha' (Like increases like; opposites create balance), Vata is pacified by foods that provide opposing qualities: Ushna (Warm), Snigdha (Unctuous/Moist), Guru (Nourishing/Grounding), and Sthira (Stable). Therefore, warm soups, well-cooked grains, root vegetables, pure cow's ghee, and sweet grounding fruits directly anchor erratic Vata energy and prevent dry intestinal spasms.",
+  traditionalRationale: [
+    "Vata is defined by the qualities of Dry, Cold, Light, Subtle, Mobile, Clear, and Rough. According to the Ayurvedic principle 'like increases like; opposites create balance', Vata is calmed by foods with the opposite qualities: Warm, Moist, Nourishing, and Stable.",
+    "Warm soups, well-cooked grains, root vegetables, pure cow's ghee, and sweet grounding fruits anchor erratic Vata energy and support comfortable digestion.",
+    "This guidance draws from classical Ayurveda (Charaka Samhita Sutrasthana 1/59).",
+  ],
   categories: [
     {
       category: "Grains",
@@ -103,7 +106,11 @@ const pittaFoodGuide = {
   bgColor: "bg-orange-500/10",
   dietaryEmphasis: "Cooling, refreshing, moderately nourishing, and less intensely spiced foods with sweet, bitter, and astringent tastes.",
   traditionalRationale:
-    "In classical Ayurveda, Pitta possesses qualities that are Sasneha (Slightly oily), Tikshna (Sharp/Penetrating), Ushna (Hot), Laghu (Light), Visra (Fleshy odor), Sara (Flowing/Spreading), and Drava (Liquid). Pitta governs digestion, gastric acid, bile, enzymes, liver metabolism, and body temperature. Foods that are inherently hot (Ushna), sharp (Tikshna), sour (Amla), salty (Lavana), or excessively pungent (Katu) inflame Pitta, leading to acid reflux, heartburn, skin eruptions, and irritability. To maintain harmony, Pitta requires foods with Sheeta (Cooling) potency, Madhura (Sweet), Tikta (Bitter), and Kashaya (Astringent) tastes, such as cucumbers, coconut, sweet grains, and soothing ghee.",
+    [
+      "Pitta possesses qualities that are Slightly Oily, Sharp, Hot, Light, and Liquid. It governs digestion, gastric acid, bile, liver metabolism, and body temperature.",
+      "Foods that are inherently hot, sharp, sour, salty, or excessively pungent can inflame Pitta, leading to acid reflux, heartburn, skin eruptions, and irritability.",
+      "To maintain harmony, Pitta needs foods with Cooling potency and Sweet, Bitter, and Astringent tastes, such as cucumbers, coconut, sweet grains, and soothing ghee.",
+    ],
   categories: [
     {
       category: "Grains",
@@ -167,7 +174,11 @@ const kaphaFoodGuide = {
   bgColor: "bg-emerald-500/10",
   dietaryEmphasis: "Lighter, warm, varied, appropriately dry, and moderately spiced foods with pungent, bitter, and astringent tastes.",
   traditionalRationale:
-    "In classical Ayurveda, Kapha is characterized by the qualities of Guru (Heavy), Sheeta (Cold), Mridu (Soft), Snigdha (Unctuous/Oily), Manda (Slow), Sandra (Dense), and Sthira (Static). Kapha governs bodily structure, mucosal membranes, synovial lubrication, and lymphatic fluids. When an individual consumes heavy, oily, cold, sweet, and dairy-rich foods, Kapha increases rapidly, manifesting as sinus congestion, lethargy, fluid retention, weight gain, and sluggish digestive fire (Manda Agni). Kapha is restored to balance by foods that provide opposing qualities: Laghu (Light), Ushna (Warm), Ruksha (Dry), and Tikshna (Sharp/Stimulating), accented by warming spices like ginger, black pepper, and mustard.",
+    [
+      "Kapha is characterized by the qualities of Heavy, Cold, Soft, Unctuous, Slow, Dense, and Stable. It governs bodily structure, mucosal membranes, joint lubrication, and lymphatic fluids.",
+      "Heavy, oily, cold, sweet, and dairy-rich foods can increase Kapha, showing up as sinus congestion, lethargy, fluid retention, weight gain, and sluggish digestion.",
+      "Kapha is restored by foods with opposing qualities: Light, Warm, Dry, and Stimulating, accented by warming spices like ginger, black pepper, and mustard.",
+    ],
   categories: [
     {
       category: "Grains",
@@ -326,9 +337,13 @@ export const DoshaFoodGuideSection: React.FC<DoshaFoodGuideSectionProps> = ({
                   <Sparkles className="w-4 h-4 text-secondary" />
                   Classical Ayurvedic Rationale (Why These Foods Work)
                 </h4>
-                <p className="text-xs md:text-sm text-foreground/90 leading-relaxed">
-                  {currentGuide.traditionalRationale}
-                </p>
+                <div className="space-y-2">
+                  {currentGuide.traditionalRationale.map((para, i) => (
+                    <p key={i} className="text-sm md:text-base text-foreground/90 leading-relaxed">
+                      {para}
+                    </p>
+                  ))}
+                </div>
               </div>
 
               {/* Categorized Food Recommendations Grid */}
@@ -358,10 +373,10 @@ export const DoshaFoodGuideSection: React.FC<DoshaFoodGuideSectionProps> = ({
                           <button
                             key={iIdx}
                             onClick={() => onSelectFoodByName(item)}
-                            className="px-2 py-1 rounded-md text-xs bg-muted/50 hover:bg-secondary/15 hover:text-secondary text-foreground/80 transition-colors border border-border/40 text-left flex items-center gap-1 group"
+                            className="min-h-[46px] px-3 py-2 rounded-lg text-sm bg-muted/50 hover:bg-secondary/15 hover:text-secondary text-foreground/80 transition-colors border border-border/40 text-left flex items-center gap-1.5 group"
                           >
                             <span>{item}</span>
-                            <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 text-secondary transition-opacity" />
+                            <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-secondary transition-opacity shrink-0" />
                           </button>
                         ))}
                       </div>
