@@ -223,19 +223,19 @@ export const FoodExplorer: React.FC<FoodExplorerProps> = ({
               <SelectItem value="all">Suitable for any dosha</SelectItem>
               <SelectItem value="vata">
                 <div className="flex items-center gap-2">
-                  <Wind className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                  <Wind className="w-4 h-4 text-sky-500 dark:text-sky-400" />
                   Suitable for Vata
                 </div>
               </SelectItem>
               <SelectItem value="pitta">
                 <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                  <Flame className="w-4 h-4 text-orange-500 dark:text-orange-400" />
                   Suitable for Pitta
                 </div>
               </SelectItem>
               <SelectItem value="kapha">
                 <div className="flex items-center gap-2">
-                  <Mountain className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <Mountain className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Suitable for Kapha
                 </div>
               </SelectItem>
@@ -395,17 +395,17 @@ export const FoodExplorer: React.FC<FoodExplorerProps> = ({
                   <th className="p-4 min-w-[150px]">Food</th>
                   <th className="p-4 min-w-[120px]">Category</th>
                   <th className="p-4 min-w-[170px]">
-                    <div className="flex items-center gap-1.5 text-sky-600 dark:text-sky-400">
+                    <div className="flex items-center gap-1.5 text-sky-500 dark:text-sky-400">
                       <Wind className="w-3.5 h-3.5" /> Vata
                     </div>
                   </th>
                   <th className="p-4 min-w-[170px]">
-                    <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
+                    <div className="flex items-center gap-1.5 text-orange-500 dark:text-orange-400">
                       <Flame className="w-3.5 h-3.5" /> Pitta
                     </div>
                   </th>
                   <th className="p-4 min-w-[170px]">
-                    <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                    <div className="flex items-center gap-1.5 text-emerald-500 dark:text-emerald-400">
                       <Mountain className="w-3 h-3" /> Kapha
                     </div>
                   </th>

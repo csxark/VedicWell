@@ -145,28 +145,28 @@ export const PersonalizedDoshaCard: React.FC<PersonalizedDoshaCardProps> = ({
 
           {/* Quick Favored & Moderated Chips */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div className="p-3.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-500/25">
+            <div className="p-3.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-900/20 border border-emerald-500/25 dark:border-emerald-700/30">
               <span className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 Top Ingredients to Favor for You:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {summary.favoredFoods.map((f, i) => (
-                  <Badge key={i} variant="outline" className="bg-background/80 text-foreground border-emerald-500/30 text-xs">
+                  <Badge key={i} variant="outline" className="bg-background/80 text-foreground border-emerald-500/20 dark:border-emerald-700/30 text-xs">
                     {f}
                   </Badge>
                 ))}
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-500/25">
+            <div className="p-3.5 rounded-xl bg-rose-50/50 dark:bg-rose-900/20 border border-rose-500/25 dark:border-rose-700/30">
               <span className="font-semibold text-rose-800 dark:text-rose-300 flex items-center gap-1.5 mb-2">
-                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                 Ingredients to Moderate for You:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {summary.foodsToModerate.map((f, i) => (
-                  <Badge key={i} variant="outline" className="bg-background/80 text-foreground border-rose-500/30 text-xs">
+                  <Badge key={i} variant="outline" className="bg-background/80 text-foreground border-rose-500/20 dark:border-rose-700/30 text-xs">
                     {f}
                   </Badge>
                 ))}

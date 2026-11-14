@@ -67,26 +67,26 @@ export const RecipeLibrarySection: React.FC<RecipeLibrarySectionProps> = ({
     switch (target) {
       case "vata":
         return (
-          <Badge className="bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30 gap-1 text-xs">
+          <Badge className="bg-sky-500/10 dark:bg-sky-900/20 text-sky-600 dark:text-sky-300 border border-sky-500/20 dark:border-sky-700/30 gap-1 text-xs">
             <Wind className="w-3 h-3" /> Vata
           </Badge>
         );
       case "pitta":
         return (
-          <Badge className="bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30 gap-1 text-xs">
+          <Badge className="bg-orange-500/10 dark:bg-orange-900/20 text-orange-600 dark:text-orange-300 border border-orange-500/20 dark:border-orange-800/30 gap-1 text-xs">
             <Flame className="w-3 h-3" /> Pitta
           </Badge>
         );
       case "kapha":
         return (
-          <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 gap-1 text-xs">
+          <Badge className="bg-emerald-500/10 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-800/30 gap-1 text-xs">
             <Mountain className="w-3 h-3" /> Kapha
           </Badge>
         );
       case "tridoshic":
       default:
         return (
-          <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 gap-1 text-xs">
+          <Badge className="bg-amber-500/10 dark:bg-amber-900/20 text-amber-600 dark:text-amber-300 border border-amber-500/20 dark:border-amber-800/30 gap-1 text-xs">
             <Sparkles className="w-3 h-3" /> Tridoshic
           </Badge>
         );

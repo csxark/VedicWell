@@ -41,10 +41,9 @@ import { ArticleReaderModal } from "@/components/knowledge/ArticleReaderModal";
 const doshaDetails = {
   vata: {
     name: "Vata",
-    element: "Air & Space (Ether)",
-    color: "from-sky-500 to-indigo-600",
-    textColor: "text-sky-600 dark:text-sky-400",
-    bgColor: "bg-sky-500/10",
+    element: "Air & Space",
+    color: "text-sky-600 dark:text-sky-400",
+    accentColor: "bg-sky-500/10 dark:bg-sky-900/20 border-sky-500/20 dark:border-sky-700/30",
     icon: Wind,
     simpleDescription:
       "Vata is the energy of movement. It governs your breath, circulation, thoughts, and nervous system. When balanced, Vata makes you creative, energetic, and adaptable. When out of balance, it can bring anxiety, dryness, and irregular digestion.",
@@ -79,9 +78,8 @@ const doshaDetails = {
   pitta: {
     name: "Pitta",
     element: "Fire & Water",
-    color: "from-orange-500 to-amber-600",
-    textColor: "text-orange-600 dark:text-orange-400",
-    bgColor: "bg-orange-500/10",
+    color: "text-orange-600 dark:text-orange-400",
+    accentColor: "bg-orange-500/10 dark:bg-orange-900/20 border-orange-500/20 dark:border-orange-800/30",
     icon: Flame,
     simpleDescription:
       "Pitta is the energy of transformation. It governs digestion, metabolism, body temperature, and your sharpness of mind. When balanced, Pitta makes you focused, confident, and courageous. When out of balance, it can bring irritability, heartburn, and skin inflammation.",
@@ -116,9 +114,8 @@ const doshaDetails = {
   kapha: {
     name: "Kapha",
     element: "Earth & Water",
-    color: "from-emerald-600 to-teal-700",
-    textColor: "text-emerald-600 dark:text-emerald-400",
-    bgColor: "bg-emerald-500/10",
+    color: "text-emerald-600 dark:text-emerald-400",
+    accentColor: "bg-emerald-500/10 dark:bg-emerald-900/20 border-emerald-500/20 dark:border-emerald-800/30",
     icon: Mountain,
     simpleDescription:
       "Kapha is the energy of structure and stability. It governs your strength, immunity, joints, and emotional steadiness. When balanced, Kapha makes you calm, loving, and resilient. When out of balance, it can bring sluggishness, congestion, and weight gain.",
@@ -150,6 +147,19 @@ const doshaDetails = {
     bestFoods: ["Barley (Yava)", "Foxtail millet", "Ginger", "Bitter gourd (Karela)", "Yellow moong dal", "Apples & pears", "Mustard seeds & black pepper"],
     avoidFoods: ["Heavy dairy sweets", "Deep-fried foods", "Cold iced desserts", "Excess refined sugar", "Heavy late-night dinners"],
   },
+};
+
+const doshaIconBg = (key: string) => {
+  switch (key) {
+    case "vata":
+      return "bg-gradient-to-r from-sky-500 to-blue-600";
+    case "pitta":
+      return "bg-gradient-to-r from-orange-500 to-amber-600";
+    case "kapha":
+      return "bg-gradient-to-r from-emerald-500 to-teal-700";
+    default:
+      return "bg-card";
+  }
 };
 
 const ayurvedaPrinciples = [
@@ -625,8 +635,8 @@ const Knowledge = () => {
                   elements: "Air & Space",
                   icon: Wind,
                   color: "text-sky-600 dark:text-sky-400",
-                  bg: "bg-sky-500/10",
-                  border: "border-sky-500/20",
+                  bg: "bg-sky-500/10 dark:bg-sky-900/20",
+                  border: "border-sky-500/20 dark:border-sky-700/30",
                   plain: "The energy of movement — governs breathing, circulation, and the nervous system.",
                   sign: "When balanced: creative, energetic, and flexible.",
                 },
@@ -636,8 +646,8 @@ const Knowledge = () => {
                   elements: "Fire & Water",
                   icon: Flame,
                   color: "text-orange-600 dark:text-orange-400",
-                  bg: "bg-orange-500/10",
-                  border: "border-orange-500/20",
+                  bg: "bg-orange-500/10 dark:bg-orange-900/20",
+                  border: "border-orange-500/20 dark:border-orange-800/30",
                   plain: "The energy of transformation — governs digestion, metabolism, and body temperature.",
                   sign: "When balanced: sharp, focused, and confident.",
                 },
@@ -647,8 +657,8 @@ const Knowledge = () => {
                   elements: "Earth & Water",
                   icon: Mountain,
                   color: "text-emerald-600 dark:text-emerald-400",
-                  bg: "bg-emerald-500/10",
-                  border: "border-emerald-500/20",
+                  bg: "bg-emerald-500/10 dark:bg-emerald-900/20",
+                  border: "border-emerald-500/20 dark:border-emerald-800/30",
                   plain: "The energy of structure — governs strength, stability, and immunity.",
                   sign: "When balanced: calm, steady, and loving.",
                 },
@@ -662,8 +672,8 @@ const Knowledge = () => {
                   )}
                 >
                   <div className="flex items-start gap-3 mb-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${d.color} shadow-sm`}>
-                      <d.icon className="w-5 h-5 text-white" />
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${d.bg} border border-border/60`}>
+                      <d.icon className={`w-5 h-5 ${d.color}`} />
                     </div>
                     <div>
                       <h3 className={`font-display text-xl font-bold ${d.color} leading-tight`}>
@@ -706,19 +716,18 @@ const Knowledge = () => {
               {Object.entries(doshaDetails).map(([key, dosha]) => (
                 <TabsContent key={key} value={key} className="space-y-6 mt-4">
                   {/* Dosha Header Card: name, elements, simple explanation */}
-                  <Card className={cn("overflow-hidden border border-border/80 shadow-sm", dosha.bgColor)}>
-                    <div className={`h-2.5 bg-gradient-to-r ${dosha.color}`} />
+                  <Card className={cn("overflow-hidden border border-border/80 shadow-sm", dosha.accentColor)}>
                     <CardContent className="pt-6 pb-8">
                       <div className="flex items-start gap-6 md:gap-8 flex-wrap">
-                        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${dosha.color} flex items-center justify-center shadow-md shrink-0`}>
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl shadow-sm shrink-0 flex items-center justify-center border border-border/60 ${doshaIconBg(key)}">
                           <dosha.icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <h3 className={`font-display text-2xl md:text-3xl font-bold ${dosha.textColor} leading-tight`}>
+                            <h3 className={`font-display text-2xl md:text-3xl font-bold ${dosha.color} leading-tight`}>
                               {dosha.name} Dosha
                             </h3>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${dosha.textColor} border border-current/40`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${dosha.color} border border-current/40`}>
                               {dosha.element}
                             </span>
                           </div>
@@ -758,10 +767,10 @@ const Knowledge = () => {
                     </Card>
 
                     {/* What balance looks like */}
-                    <Card className="border border-border/80 shadow-sm bg-emerald-50/40 dark:bg-emerald-950/20">
+                    <Card className="border border-border/80 shadow-sm bg-emerald-500/10 dark:bg-emerald-900/20 border-emerald-500/20 dark:border-emerald-700/30">
                       <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400 dark:text-emerald-300" />
                           <CardTitle className="text-base font-display">When Balanced</CardTitle>
                         </div>
                       </CardHeader>
@@ -769,7 +778,7 @@ const Knowledge = () => {
                         <ul className="text-sm text-foreground/90 leading-relaxed space-y-2">
                           {dosha.characteristics.map((char, i) => (
                             <li key={i} className="flex items-start gap-2.5">
-                              <span className="text-emerald-500 shrink-0 mt-0.5">✓</span>
+                              <span className="text-emerald-400 dark:text-emerald-300 shrink-0 mt-0.5">✓</span>
                               <span>{char}</span>
                             </li>
                           ))}
@@ -778,13 +787,13 @@ const Knowledge = () => {
                     </Card>
 
                     {/* Signs of imbalance */}
-                    <Card className="border border-border/80 shadow-sm bg-rose-50/40 dark:bg-rose-950/20">
+                    <Card className="border border-border/80 shadow-sm bg-rose-500/10 dark:bg-rose-900/20 border-rose-500/20 dark:border-rose-700/30">
                       <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
-                          <AlertTriangle className="w-5 h-5 text-rose-500 dark:text-rose-400" />
+                          <AlertTriangle className="w-5 h-5 text-rose-400 dark:text-rose-300" />
                           <CardTitle className="text-base font-display">Signs of Imbalance</CardTitle>
                         </div>
-                        <p className="text-[10px] uppercase tracking-wider text-rose-600 dark:text-rose-400 font-semibold mt-1">
+                        <p className="text-[10px] uppercase tracking-wider text-rose-400 dark:text-rose-300 font-semibold mt-1">
                           Traditional Ayurvedic descriptions, not a medical diagnosis
                         </p>
                       </CardHeader>
@@ -792,7 +801,7 @@ const Knowledge = () => {
                         <ul className="text-sm text-foreground/90 leading-relaxed space-y-2">
                           {dosha.imbalanceSigns.map((sign, i) => (
                             <li key={i} className="flex items-start gap-2.5">
-                              <span className="text-rose-500 shrink-0 mt-0.5">!</span>
+                              <span className="text-rose-400 dark:text-rose-300 shrink-0 mt-0.5">!</span>
                               <span>{sign}</span>
                             </li>
                           ))}
@@ -801,10 +810,10 @@ const Knowledge = () => {
                     </Card>
 
                     {/* Balancing tips */}
-                    <Card className="border border-border/80 shadow-sm bg-amber-50/40 dark:bg-amber-950/20">
+                    <Card className="border border-border/80 shadow-sm bg-amber-500/10 dark:bg-amber-900/20 border-amber-500/20 dark:border-amber-700/30">
                       <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
-                          <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                          <Sun className="w-5 h-5 text-amber-400 dark:text-amber-300" />
                           <CardTitle className="text-base font-display">Everyday Balancing Tips</CardTitle>
                         </div>
                       </CardHeader>
@@ -812,7 +821,7 @@ const Knowledge = () => {
                         <ul className="text-sm text-foreground/90 leading-relaxed space-y-2">
                           {dosha.balancingTips.map((tip, i) => (
                             <li key={i} className="flex items-start gap-2.5">
-                              <span className="text-amber-500 shrink-0 mt-0.5">→</span>
+                              <span className="text-amber-400 dark:text-amber-300 shrink-0 mt-0.5">→</span>
                               <span>{tip}</span>
                             </li>
                           ))}
@@ -837,7 +846,7 @@ const Knowledge = () => {
                             <button
                               key={food}
                               onClick={() => handleSelectFoodByName(food)}
-                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
+                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-700/30 hover:bg-emerald-500/20 dark:hover:bg-emerald-800/20 transition-colors"
                             >
                               {food}
                             </button>
@@ -860,7 +869,7 @@ const Knowledge = () => {
                       <CardContent className="space-y-3 pt-0">
                         <div className="flex flex-wrap gap-2">
                           {dosha.avoidFoods.map((food) => (
-                            <span key={food} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20">
+                            <span key={food} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-300 border border-rose-500/20 dark:border-rose-700/30">
                               {food}
                             </span>
                           ))}

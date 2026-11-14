@@ -140,20 +140,20 @@ export const AgniAndDigestionSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
-          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-1 text-center">
-            <div className="font-bold text-lg text-emerald-700 dark:text-emerald-300">50% (Two Quarters)</div>
+          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 dark:border-emerald-800/30 space-y-1 text-center">
+            <div className="font-bold text-lg text-emerald-600 dark:text-emerald-300">50% (Two Quarters)</div>
             <div className="font-semibold text-foreground">Solid Nourishing Food</div>
             <p className="text-muted-foreground text-[11px]">Whole grains, steamed vegetables, moong dal, root vegetables.</p>
           </div>
 
-          <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/25 space-y-1 text-center">
-            <div className="font-bold text-lg text-sky-700 dark:text-sky-300">25% (One Quarter)</div>
+          <div className="p-4 rounded-xl bg-sky-500/10 dark:bg-sky-900/20 border border-sky-500/20 dark:border-sky-700/30 space-y-1 text-center">
+            <div className="font-bold text-lg text-sky-700 dark:text-sky-400">25% (One Quarter)</div>
             <div className="font-semibold text-foreground">Warm Liquid / Broth</div>
             <p className="text-muted-foreground text-[11px]">Sipped warm water, digestive CCF tea, or light soupy dal to churn food.</p>
           </div>
 
-          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-1 text-center">
-            <div className="font-bold text-lg text-amber-700 dark:text-amber-300">25% (One Quarter)</div>
+          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 dark:border-amber-800/30 space-y-1 text-center">
+            <div className="font-bold text-lg text-amber-600 dark:text-amber-300">25% (One Quarter)</div>
             <div className="font-semibold text-foreground">Empty Space for Vata</div>
             <p className="text-muted-foreground text-[11px]">Left completely empty to allow digestive gases (Samana Vayu) to circulate freely.</p>
           </div>

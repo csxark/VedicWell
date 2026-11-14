@@ -43,7 +43,7 @@ export const FoodCombinationsSection: React.FC = () => {
 
             <CardContent className="space-y-3.5 text-xs pt-0">
               {/* Traditional Explanation */}
-              <div className="p-3 rounded-lg bg-rose-50/50 dark:bg-rose-950/20 border border-rose-500/20 space-y-1">
+              <div className="p-3 rounded-lg bg-rose-50/50 dark:bg-rose-900/20 border border-rose-500/20 dark:border-rose-700/30 space-y-1">
                 <span className="font-semibold text-rose-800 dark:text-rose-300">Traditional Ayurvedic Reason:</span>
                 <p className="text-muted-foreground leading-relaxed">
                   {combo.traditionalExplanation}
@@ -59,9 +59,9 @@ export const FoodCombinationsSection: React.FC = () => {
               </div>
 
               {/* Remedy / Correction */}
-              <div className="p-3 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-500/20 space-y-1">
+              <div className="p-3 rounded-lg bg-emerald-50/50 dark:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-700/30 space-y-1">
                 <span className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   Ayurvedic Remedy / Correction:
                 </span>
                 <p className="text-muted-foreground leading-relaxed">

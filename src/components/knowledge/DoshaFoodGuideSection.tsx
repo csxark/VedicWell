@@ -34,10 +34,10 @@ const vataFoodGuide = {
   name: "Vata Dosha",
   element: "Air & Space (Ether)",
   icon: Wind,
-  color: "from-sky-500 to-indigo-600",
+  accentColor: "text-sky-600 dark:text-sky-400",
   textColor: "text-sky-600 dark:text-sky-400",
-  borderColor: "border-sky-500/30",
-  bgColor: "bg-sky-500/10",
+  borderColor: "border-sky-500/30 dark:border-sky-700/30",
+  bgColor: "bg-sky-500/10 dark:bg-sky-900/20",
   dietaryEmphasis: "Warm, nourishing, moist, grounding, and appropriately cooked foods with healthy fats.",
   traditionalRationale: [
     "Vata is defined by the qualities of Dry, Cold, Light, Subtle, Mobile, Clear, and Rough. According to the Ayurvedic principle 'like increases like; opposites create balance', Vata is calmed by foods with the opposite qualities: Warm, Moist, Nourishing, and Stable.",
@@ -100,10 +100,10 @@ const pittaFoodGuide = {
   name: "Pitta Dosha",
   element: "Fire & Water",
   icon: Flame,
-  color: "from-orange-500 to-amber-600",
+  accentColor: "text-orange-600 dark:text-orange-400",
   textColor: "text-orange-600 dark:text-orange-400",
-  borderColor: "border-orange-500/30",
-  bgColor: "bg-orange-500/10",
+  borderColor: "border-orange-500/30 dark:border-orange-800/30",
+  bgColor: "bg-orange-500/10 dark:bg-orange-900/20",
   dietaryEmphasis: "Cooling, refreshing, moderately nourishing, and less intensely spiced foods with sweet, bitter, and astringent tastes.",
   traditionalRationale:
     [
@@ -168,10 +168,10 @@ const kaphaFoodGuide = {
   name: "Kapha Dosha",
   element: "Earth & Water",
   icon: Mountain,
-  color: "from-emerald-600 to-teal-700",
+  accentColor: "text-emerald-600 dark:text-emerald-400",
   textColor: "text-emerald-600 dark:text-emerald-400",
-  borderColor: "border-emerald-500/30",
-  bgColor: "bg-emerald-500/10",
+  borderColor: "border-emerald-500/30 dark:border-emerald-800/30",
+  bgColor: "bg-emerald-500/10 dark:bg-emerald-900/20",
   dietaryEmphasis: "Lighter, warm, varied, appropriately dry, and moderately spiced foods with pungent, bitter, and astringent tastes.",
   traditionalRationale:
     [
@@ -284,21 +284,21 @@ export const DoshaFoodGuideSection: React.FC<DoshaFoodGuideSectionProps> = ({
           <TabsList className="bg-muted/60 p-1 rounded-2xl border border-border/80 h-auto gap-1">
             <TabsTrigger
               value="vata"
-              className="gap-2 px-5 py-2.5 rounded-xl text-xs md:text-sm font-medium data-[state=active]:bg-sky-500 data-[state=active]:text-white transition-all"
+              className="gap-2 px-5 py-2.5 rounded-xl text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:border data-[state=active]:border-border/60 data-[state=active]:shadow-sm data-[state=active]:text-foreground transition-all"
             >
               <Wind className="w-4 h-4" />
               Vata Food Guide
             </TabsTrigger>
             <TabsTrigger
               value="pitta"
-              className="gap-2 px-5 py-2.5 rounded-xl text-xs md:text-sm font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all"
+              className="gap-2 px-5 py-2.5 rounded-xl text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:border data-[state=active]:border-border/60 data-[state=active]:shadow-sm data-[state=active]:text-foreground transition-all"
             >
               <Flame className="w-4 h-4" />
               Pitta Food Guide
             </TabsTrigger>
             <TabsTrigger
               value="kapha"
-              className="gap-2 px-5 py-2.5 rounded-xl text-xs md:text-sm font-medium data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all"
+              className="gap-2 px-5 py-2.5 rounded-xl text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:border data-[state=active]:border-border/60 data-[state=active]:shadow-sm data-[state=active]:text-foreground transition-all"
             >
               <Mountain className="w-4 h-4" />
               Kapha Food Guide
@@ -309,13 +309,12 @@ export const DoshaFoodGuideSection: React.FC<DoshaFoodGuideSectionProps> = ({
         {/* Tab Content Display */}
         <TabsContent value={selectedDosha} className="space-y-6 mt-4">
           {/* Header Card */}
-          <Card className={`overflow-hidden border ${currentGuide.borderColor} shadow-sm backdrop-blur`}>
-            <div className={`h-2.5 bg-gradient-to-r ${currentGuide.color}`} />
+          <Card className={`overflow-hidden border ${currentGuide.borderColor} shadow-sm`}>
             <CardHeader className="pb-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${currentGuide.color} flex items-center justify-center text-white shadow-md shrink-0`}>
-                    <currentGuide.icon className="w-7 h-7" />
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${currentGuide.bgColor} border border-border/60`}>
+                    <currentGuide.icon className={`w-7 h-7 ${currentGuide.accentColor}`} />
                   </div>
                   <div>
                     <CardTitle className="font-display text-2xl md:text-3xl text-foreground">
@@ -386,8 +385,8 @@ export const DoshaFoodGuideSection: React.FC<DoshaFoodGuideSectionProps> = ({
               </div>
 
               {/* Foods Traditionally Moderated Card */}
-              <div className="p-5 rounded-xl border border-rose-500/25 bg-rose-50/40 dark:bg-rose-950/20 space-y-3">
-                <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-semibold text-sm">
+              <div className="p-5 rounded-xl border border-rose-500/10 dark:border-rose-800/20 bg-rose-500/5 dark:bg-rose-900/10 space-y-3">
+                <div className="flex items-center gap-2 text-rose-500 dark:text-rose-300 font-semibold text-sm">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   Foods Traditionally Moderated or Avoided for {currentGuide.name}
                 </div>

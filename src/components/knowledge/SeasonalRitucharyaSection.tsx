@@ -107,15 +107,15 @@ export const SeasonalRitucharyaSection: React.FC = () => {
             {/* Foods to Favor vs Foods to Moderate */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               {/* Foods to Favor */}
-              <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-500/25 space-y-2">
+              <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-700/30 space-y-2">
                 <span className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   Foods to Favor During {currentSeason.season}:
                 </span>
                 <ul className="space-y-1.5 text-muted-foreground">
                   {currentSeason.foodsToFavor.map((f, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0 mt-1.5" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -123,9 +123,9 @@ export const SeasonalRitucharyaSection: React.FC = () => {
               </div>
 
               {/* Foods to Moderate */}
-              <div className="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-500/25 space-y-2">
+              <div className="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-900/20 border border-rose-500/20 dark:border-rose-700/30 space-y-2">
                 <span className="font-semibold text-rose-800 dark:text-rose-300 flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                   Foods to Moderate or Avoid:
                 </span>
                 <ul className="space-y-1.5 text-muted-foreground">

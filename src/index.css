@@ -87,45 +87,62 @@
   }
 
   .dark {
-    --background: 150 70% 8%;
-    --foreground: 40 100% 97%;
+    /* Vibrant Dark Mode — preserves light mode color identity, inverted for dark bg */
+    --background: 150 30% 8%;
+    --foreground: 40 50% 92%;
 
-    --card: 150 50% 12%;
-    --card-foreground: 40 100% 97%;
+    --card: 150 25% 14%;
+    --card-foreground: 40 50% 92%;
 
-    --popover: 150 50% 12%;
-    --popover-foreground: 40 100% 97%;
+    --popover: 150 25% 12%;
+    --popover-foreground: 40 50% 92%;
 
-    --primary: 24 100% 60%;
-    --primary-foreground: 150 70% 8%;
+    --primary: 150 70% 35%;
+    --primary-foreground: 40 50% 96%;
 
-    --secondary: 150 50% 20%;
-    --secondary-foreground: 40 100% 97%;
+    --secondary: 24 100% 60%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 150 30% 18%;
-    --muted-foreground: 40 50% 70%;
+    --muted: 150 20% 16%;
+    --muted-foreground: 140 20% 65%;
 
-    --accent: 43 79% 46%;
-    --accent-foreground: 150 70% 8%;
+    --accent: 24 100% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 40 100% 97%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 150 30% 20%;
-    --input: 150 30% 20%;
+    --border: 150 30% 26%;
+    --input: 150 30% 26%;
     --ring: 24 100% 60%;
 
-    --glass-bg: rgba(15, 81, 50, 0.3);
-    --glass-border: rgba(255, 153, 51, 0.2);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --radius: 1rem;
 
-    --sidebar-background: 150 70% 6%;
-    --sidebar-foreground: 40 100% 97%;
+    /* Glass Effect Variables — vibrant, subtle */
+    --glass-bg: rgba(15, 43, 31, 0.35);
+    --glass-border: rgba(255, 135, 54, 0.15);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+
+    /* Gradients — vibrant, preserve hues */
+    --gradient-saffron: linear-gradient(135deg, hsl(24 100% 60%) 0%, hsl(43 79% 46%) 100%);
+    --gradient-forest: linear-gradient(135deg, hsl(150 70% 25%) 0%, hsl(150 50% 35%) 100%);
+    --gradient-cream: linear-gradient(180deg, hsl(150 30% 8%) 0%, hsl(150 25% 14%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(24 100% 60%) 0%, hsl(15 60% 55%) 50%, hsl(43 79% 46%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(150 30% 8% / 0.9) 0%, hsl(150 25% 14% / 0.85) 100%);
+
+    /* Shadows — softer, no glow */
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.25);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.3);
+    --shadow-glow: none;
+
+    /* Sidebar */
+    --sidebar-background: 150 30% 6%;
+    --sidebar-foreground: 40 50% 92%;
     --sidebar-primary: 24 100% 60%;
-    --sidebar-primary-foreground: 150 70% 8%;
-    --sidebar-accent: 150 50% 15%;
-    --sidebar-accent-foreground: 40 100% 97%;
-    --sidebar-border: 150 50% 15%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 25% 14%;
+    --sidebar-accent-foreground: 40 50% 92%;
+    --sidebar-border: 150 30% 20%;
     --sidebar-ring: 24 100% 60%;
   }
 }
@@ -159,13 +176,13 @@
 }
 
 @layer components {
-  /* Glass Card Effect */
+  /* Glass Card Effect — vibrant, subtle */
   .glass-card {
     background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    box-shadow: var(--shadow-soft);
   }
 
   /* Gradient Text */

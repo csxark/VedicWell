@@ -127,7 +127,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
             {/* Modern Context Note */}
             {article.modernContextNote && (
-              <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-900 dark:text-emerald-200">
+              <div className="p-4 rounded-lg bg-emerald-500/10 dark:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-700/30 text-xs text-emerald-900 dark:text-emerald-200">
                 <strong>Modern Scientific Context: </strong>
                 {article.modernContextNote}
               </div>

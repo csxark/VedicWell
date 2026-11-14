@@ -105,7 +105,7 @@ export const FoodDetailModal: React.FC<FoodDetailModalProps> = ({
                 {categoryLabels[food.category]}
               </Badge>
               {food.prabhava && (
-                <Badge variant="outline" className="border-amber-300/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 text-[10px] gap-1">
+                <Badge variant="outline" className="border-amber-500/30 text-amber-400 dark:text-amber-300 bg-amber-500/5 dark:bg-amber-900/10 text-[10px] gap-1">
                   <Sparkles className="w-3 h-3" />
                   Special traditional action
                 </Badge>
@@ -279,32 +279,32 @@ export const FoodDetailModal: React.FC<FoodDetailModalProps> = ({
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-4 mt-4 pt-4 border-t border-border/40">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20">
-                    <h3 className="font-semibold text-xs uppercase tracking-wider text-emerald-700 dark:text-emerald-300 mb-2 flex items-center gap-1.5">
+                  <div className="p-4 rounded-lg border border-emerald-500/20 dark:border-emerald-700/30 bg-emerald-500/10 dark:bg-emerald-900/20">
+                    <h3 className="font-semibold text-xs uppercase tracking-wider text-emerald-500 dark:text-emerald-300 mb-2 flex items-center gap-1.5">
                       <span className="w-3 h-3 text-emerald-500 shrink-0" />
                       Harmonious combinations
                     </h3>
-                    <p className="text-xs text-emerald-900 dark:text-emerald-100 leading-relaxed">
+                    <p className="text-xs text-foreground/90 leading-relaxed">
                       {food.compatibleCombinations.join(", ")}
                     </p>
                   </div>
-                  <div className="p-4 rounded-lg border border-rose-500/20 bg-rose-50/50 dark:bg-rose-950/20">
-                    <h3 className="font-semibold text-xs uppercase tracking-wider text-rose-700 dark:text-rose-400 mb-2 flex items-center gap-1.5">
+                  <div className="p-4 rounded-lg border border-rose-500/20 dark:border-rose-700/30 bg-rose-500/10 dark:bg-rose-900/20">
+                    <h3 className="font-semibold text-xs uppercase tracking-wider text-rose-500 dark:text-rose-300 mb-2 flex items-center gap-1.5">
                       <AlertTriangle className="w-3 h-3 text-rose-500 shrink-0" />
                       Combinations to moderate
                     </h3>
-                    <p className="text-xs text-rose-900 dark:text-rose-100 leading-relaxed">
+                    <p className="text-xs text-foreground/90 leading-relaxed">
                       {food.incompatibleCombinations.join(", ")}
                     </p>
                   </div>
                 </div>
                 {food.moderationNotes && (
-                  <div className="p-4 rounded-lg border border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/20">
-                    <h3 className="font-semibold text-xs uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+                  <div className="p-4 rounded-lg border border-amber-500/20 dark:border-amber-700/30 bg-amber-500/10 dark:bg-amber-900/20">
+                    <h3 className="font-semibold text-xs uppercase tracking-wider text-amber-500 dark:text-amber-300 mb-2 flex items-center gap-1.5">
                       <Info className="w-3 h-3 text-amber-500 shrink-0" />
                       Important considerations
                     </h3>
-                    <p className="text-xs text-amber-900 dark:text-amber-100 leading-relaxed">
+                    <p className="text-xs text-foreground/90 leading-relaxed">
                       {food.moderationNotes}
                     </p>
                   </div>
