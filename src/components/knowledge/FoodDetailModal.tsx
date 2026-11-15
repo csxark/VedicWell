@@ -279,7 +279,7 @@ export const FoodDetailModal: React.FC<FoodDetailModalProps> = ({
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-4 mt-4 pt-4 border-t border-border/40">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg border border-emerald-500/20 dark:border-emerald-700/30 bg-emerald-500/10 dark:bg-emerald-900/20">
+                  <div className="p-4 rounded-lg border border-emerald-500/20 dark:border-emerald-700/30 bg-emerald-500/10 dark:bg-card">
                     <h3 className="font-semibold text-xs uppercase tracking-wider text-emerald-500 dark:text-emerald-300 mb-2 flex items-center gap-1.5">
                       <span className="w-3 h-3 text-emerald-500 shrink-0" />
                       Harmonious combinations
@@ -299,7 +299,7 @@ export const FoodDetailModal: React.FC<FoodDetailModalProps> = ({
                   </div>
                 </div>
                 {food.moderationNotes && (
-                  <div className="p-4 rounded-lg border border-amber-500/20 dark:border-amber-700/30 bg-amber-500/10 dark:bg-amber-900/20">
+                  <div className="p-4 rounded-lg border border-amber-500/20 dark:border-amber-700/30 bg-amber-500/10 dark:bg-card">
                     <h3 className="font-semibold text-xs uppercase tracking-wider text-amber-500 dark:text-amber-300 mb-2 flex items-center gap-1.5">
                       <Info className="w-3 h-3 text-amber-500 shrink-0" />
                       Important considerations

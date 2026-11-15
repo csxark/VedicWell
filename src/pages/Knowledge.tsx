@@ -43,7 +43,7 @@ const doshaDetails = {
     name: "Vata",
     element: "Air & Space",
     color: "text-sky-600 dark:text-sky-400",
-    accentColor: "bg-sky-500/10 dark:bg-sky-900/20 border-sky-500/20 dark:border-sky-700/30",
+    accentColor: "bg-card border-sky-500/20 dark:border-sky-700/30",
     icon: Wind,
     simpleDescription:
       "Vata is the energy of movement. It governs your breath, circulation, thoughts, and nervous system. When balanced, Vata makes you creative, energetic, and adaptable. When out of balance, it can bring anxiety, dryness, and irregular digestion.",
@@ -79,7 +79,7 @@ const doshaDetails = {
     name: "Pitta",
     element: "Fire & Water",
     color: "text-orange-600 dark:text-orange-400",
-    accentColor: "bg-orange-500/10 dark:bg-orange-900/20 border-orange-500/20 dark:border-orange-800/30",
+    accentColor: "bg-card border-orange-500/20 dark:border-orange-800/30",
     icon: Flame,
     simpleDescription:
       "Pitta is the energy of transformation. It governs digestion, metabolism, body temperature, and your sharpness of mind. When balanced, Pitta makes you focused, confident, and courageous. When out of balance, it can bring irritability, heartburn, and skin inflammation.",
@@ -115,7 +115,7 @@ const doshaDetails = {
     name: "Kapha",
     element: "Earth & Water",
     color: "text-emerald-600 dark:text-emerald-400",
-    accentColor: "bg-emerald-500/10 dark:bg-emerald-900/20 border-emerald-500/20 dark:border-emerald-800/30",
+    accentColor: "bg-card border-emerald-500/20 dark:border-emerald-800/30",
     icon: Mountain,
     simpleDescription:
       "Kapha is the energy of structure and stability. It governs your strength, immunity, joints, and emotional steadiness. When balanced, Kapha makes you calm, loving, and resilient. When out of balance, it can bring sluggishness, congestion, and weight gain.",
@@ -635,7 +635,7 @@ const Knowledge = () => {
                   elements: "Air & Space",
                   icon: Wind,
                   color: "text-sky-600 dark:text-sky-400",
-                  bg: "bg-sky-500/10 dark:bg-sky-900/20",
+                  bg: "bg-card",
                   border: "border-sky-500/20 dark:border-sky-700/30",
                   plain: "The energy of movement — governs breathing, circulation, and the nervous system.",
                   sign: "When balanced: creative, energetic, and flexible.",
@@ -646,7 +646,7 @@ const Knowledge = () => {
                   elements: "Fire & Water",
                   icon: Flame,
                   color: "text-orange-600 dark:text-orange-400",
-                  bg: "bg-orange-500/10 dark:bg-orange-900/20",
+                  bg: "bg-card",
                   border: "border-orange-500/20 dark:border-orange-800/30",
                   plain: "The energy of transformation — governs digestion, metabolism, and body temperature.",
                   sign: "When balanced: sharp, focused, and confident.",
@@ -657,7 +657,7 @@ const Knowledge = () => {
                   elements: "Earth & Water",
                   icon: Mountain,
                   color: "text-emerald-600 dark:text-emerald-400",
-                  bg: "bg-emerald-500/10 dark:bg-emerald-900/20",
+                  bg: "bg-card",
                   border: "border-emerald-500/20 dark:border-emerald-800/30",
                   plain: "The energy of structure — governs strength, stability, and immunity.",
                   sign: "When balanced: calm, steady, and loving.",
@@ -767,7 +767,7 @@ const Knowledge = () => {
                     </Card>
 
                     {/* What balance looks like */}
-                    <Card className="border border-border/80 shadow-sm bg-emerald-500/10 dark:bg-emerald-900/20 border-emerald-500/20 dark:border-emerald-700/30">
+                    <Card className="border border-border/80 shadow-sm bg-card border-emerald-500/20 dark:border-emerald-700/30">
                       <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-5 h-5 text-emerald-400 dark:text-emerald-300" />
@@ -810,7 +810,7 @@ const Knowledge = () => {
                     </Card>
 
                     {/* Balancing tips */}
-                    <Card className="border border-border/80 shadow-sm bg-amber-500/10 dark:bg-amber-900/20 border-amber-500/20 dark:border-amber-700/30">
+                    <Card className="border border-border/80 shadow-sm bg-card border-amber-500/20 dark:border-amber-700/30">
                       <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
                           <Sun className="w-5 h-5 text-amber-400 dark:text-amber-300" />
@@ -846,7 +846,7 @@ const Knowledge = () => {
                             <button
                               key={food}
                               onClick={() => handleSelectFoodByName(food)}
-                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-700/30 hover:bg-emerald-500/20 dark:hover:bg-emerald-800/20 transition-colors"
+                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 dark:bg-card border border-emerald-500/20 dark:border-emerald-700/30 hover:bg-emerald-500/20 dark:hover:bg-emerald-900/20 transition-colors"
                             >
                               {food}
                             </button>

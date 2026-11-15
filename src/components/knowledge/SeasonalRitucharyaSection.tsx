@@ -107,7 +107,7 @@ export const SeasonalRitucharyaSection: React.FC = () => {
             {/* Foods to Favor vs Foods to Moderate */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               {/* Foods to Favor */}
-              <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-700/30 space-y-2">
+              <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-card border border-emerald-500/20 dark:border-emerald-700/30 space-y-2">
                 <span className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   Foods to Favor During {currentSeason.season}:

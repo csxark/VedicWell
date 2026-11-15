@@ -119,9 +119,9 @@ export const FoodExplorer: React.FC<FoodExplorerProps> = ({
     const { label, variant } = PLAIN_SUITABILITY[suitability];
     const base = "px-2.5 py-1 rounded-lg text-[10px] font-semibold border flex items-center gap-1.5";
     const styles: Record<string, string> = {
-      suitable: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/25",
-      moderation: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/25",
-      less: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/25",
+      suitable: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 dark:bg-card border-emerald-500/25 dark:border-emerald-700/30",
+      moderation: "bg-amber-500/10 text-amber-700 dark:text-amber-300 dark:bg-card border-amber-500/25 dark:border-amber-700/30",
+      less: "bg-rose-500/10 text-rose-700 dark:text-rose-300 dark:bg-card border-rose-500/25 dark:border-rose-700/30",
     };
     const icons: Record<string, React.ElementType> = {
       suitable: CheckCircle2,
@@ -332,7 +332,7 @@ export const FoodExplorer: React.FC<FoodExplorerProps> = ({
                     <span
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
                         food.vataSuitability === "favored" || food.pittaSuitability === "favored" || food.kaphaSuitability === "favored"
-                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20"
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 dark:bg-card border-emerald-500/20 dark:border-emerald-700/30"
                           : "bg-muted text-muted-foreground border border-border/60"
                       }`}
                     >

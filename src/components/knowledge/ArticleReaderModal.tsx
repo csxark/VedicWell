@@ -46,13 +46,13 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl max-h-[92vh] p-0 overflow-hidden bg-background border-border">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-amber-900 text-white p-6 md:p-8 relative">
+        <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-amber-900 dark:from-[#2d241c] dark:via-[#4a3224] dark:to-[#2d241c] text-white p-6 md:p-8 relative">
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <Badge variant="outline" className="border-white/30 text-white bg-white/10 uppercase tracking-wider text-xs">
                 {article.category}
               </Badge>
-              <div className="flex items-center gap-1 text-xs text-emerald-200">
+              <div className="flex items-center gap-1 text-xs text-emerald-200 dark:text-amber-200">
                 <Clock className="w-3.5 h-3.5" />
                 {article.readTime}
               </div>
@@ -65,7 +65,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             <DialogTitle className="font-display text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2 leading-tight">
               {article.title}
             </DialogTitle>
-            <DialogDescription className="text-emerald-100/90 text-sm md:text-base leading-relaxed">
+            <DialogDescription className="text-emerald-100/90 dark:text-amber-200/90 text-sm md:text-base leading-relaxed">
               {article.subtitle}
             </DialogDescription>
           </div>
@@ -127,7 +127,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
             {/* Modern Context Note */}
             {article.modernContextNote && (
-              <div className="p-4 rounded-lg bg-emerald-500/10 dark:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-700/30 text-xs text-emerald-900 dark:text-emerald-200">
+              <div className="p-4 rounded-lg bg-emerald-500/10 dark:bg-card border border-emerald-500/20 dark:border-sky-500/30 text-xs text-emerald-900 dark:text-sky-400">
                 <strong>Modern Scientific Context: </strong>
                 {article.modernContextNote}
               </div>

@@ -87,24 +87,24 @@
   }
 
   .dark {
-    /* Vibrant Dark Mode — preserves light mode color identity, inverted for dark bg */
-    --background: 150 30% 8%;
-    --foreground: 40 50% 92%;
+    /* Midnight Charcoal & Warm Espresso — premium dark surfaces (no green dominance) */
+    --background: 30 14% 7%;        /* #111210 warm charcoal */
+    --foreground: 40 35% 92%;       /* #F4F0E9 warm ivory */
 
-    --card: 150 25% 14%;
-    --card-foreground: 40 50% 92%;
+    --card: 36 16% 11%;             /* #1D1B18 primary card */
+    --card-foreground: 40 35% 92%;
 
-    --popover: 150 25% 12%;
-    --popover-foreground: 40 50% 92%;
+    --popover: 30 16% 9%;
+    --popover-foreground: 40 35% 92%;
 
-    --primary: 150 70% 35%;
-    --primary-foreground: 40 50% 96%;
+    --primary: 24 100% 60%;         /* #FF8736 VedicWell brand orange */
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 24 100% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 150 20% 16%;
-    --muted-foreground: 140 20% 65%;
+    --muted: 30 12% 14%;            /* #24211D secondary surface */
+    --muted-foreground: 30 10% 63%; /* #BDB5AA */
 
     --accent: 24 100% 60%;
     --accent-foreground: 0 0% 100%;
@@ -112,37 +112,37 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 150 30% 26%;
-    --input: 150 30% 26%;
+    --border: 28 15% 24%;           /* #40372F subtle borders */
+    --input: 28 15% 24%;
     --ring: 24 100% 60%;
 
     --radius: 1rem;
 
-    /* Glass Effect Variables — vibrant, subtle */
-    --glass-bg: rgba(15, 43, 31, 0.35);
+    /* Glass Effect Variables — warm charcoal */
+    --glass-bg: rgba(17, 18, 16, 0.4);
     --glass-border: rgba(255, 135, 54, 0.15);
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 
-    /* Gradients — vibrant, preserve hues */
+    /* Gradients — brand and warm neutrals, no green dominance */
     --gradient-saffron: linear-gradient(135deg, hsl(24 100% 60%) 0%, hsl(43 79% 46%) 100%);
-    --gradient-forest: linear-gradient(135deg, hsl(150 70% 25%) 0%, hsl(150 50% 35%) 100%);
-    --gradient-cream: linear-gradient(180deg, hsl(150 30% 8%) 0%, hsl(150 25% 14%) 100%);
+    --gradient-forest: linear-gradient(135deg, hsl(30 40% 20%) 0%, hsl(24 60% 35%) 100%);
+    --gradient-cream: linear-gradient(180deg, hsl(30 14% 7%) 0%, hsl(36 16% 11%) 100%);
     --gradient-sunset: linear-gradient(135deg, hsl(24 100% 60%) 0%, hsl(15 60% 55%) 50%, hsl(43 79% 46%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(150 30% 8% / 0.9) 0%, hsl(150 25% 14% / 0.85) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(30 14% 7% / 0.9) 0%, hsl(36 16% 11% / 0.85) 100%);
 
-    /* Shadows — softer, no glow */
+    /* Shadows — soft charcoal */
     --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.25);
     --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.3);
     --shadow-glow: none;
 
     /* Sidebar */
-    --sidebar-background: 150 30% 6%;
-    --sidebar-foreground: 40 50% 92%;
+    --sidebar-background: 30 14% 6%;
+    --sidebar-foreground: 40 35% 92%;
     --sidebar-primary: 24 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 25% 14%;
-    --sidebar-accent-foreground: 40 50% 92%;
-    --sidebar-border: 150 30% 20%;
+    --sidebar-accent: 30 12% 14%;
+    --sidebar-accent-foreground: 40 35% 92%;
+    --sidebar-border: 28 15% 24%;
     --sidebar-ring: 24 100% 60%;
   }
 }

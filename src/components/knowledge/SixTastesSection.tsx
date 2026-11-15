@@ -94,8 +94,8 @@ export const SixTastesSection: React.FC = () => {
                 {/* Vata */}
                 <div className={`p-3 rounded-lg border flex items-center justify-between gap-2 ${
                   currentTaste.doshaImpact.vata === "pacifies"
-                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
-                    : "bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-200"
+                    ? "bg-emerald-500/10 dark:bg-card border-emerald-500/30 dark:border-emerald-700/30 text-emerald-800 dark:text-emerald-200"
+                    : "bg-rose-500/10 dark:bg-card border-rose-500/30 dark:border-rose-700/30 text-rose-800 dark:text-rose-200"
                 }`}>
                   <div className="flex items-center gap-1.5 font-semibold">
                     <Wind className="w-4 h-4" /> Vata
@@ -108,8 +108,8 @@ export const SixTastesSection: React.FC = () => {
                 {/* Pitta */}
                 <div className={`p-3 rounded-lg border flex items-center justify-between gap-2 ${
                   currentTaste.doshaImpact.pitta === "pacifies"
-                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
-                    : "bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-200"
+                    ? "bg-emerald-500/10 dark:bg-card border-emerald-500/30 dark:border-emerald-700/30 text-emerald-800 dark:text-emerald-200"
+                    : "bg-rose-500/10 dark:bg-card border-rose-500/30 dark:border-rose-700/30 text-rose-800 dark:text-rose-200"
                 }`}>
                   <div className="flex items-center gap-1.5 font-semibold">
                     <Flame className="w-4 h-4" /> Pitta
@@ -122,8 +122,8 @@ export const SixTastesSection: React.FC = () => {
                 {/* Kapha */}
                 <div className={`p-3 rounded-lg border flex items-center justify-between gap-2 ${
                   currentTaste.doshaImpact.kapha === "pacifies"
-                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
-                    : "bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-200"
+                    ? "bg-emerald-500/10 dark:bg-card border-emerald-500/30 dark:border-emerald-700/30 text-emerald-800 dark:text-emerald-200"
+                    : "bg-rose-500/10 dark:bg-card border-rose-500/30 dark:border-rose-700/30 text-rose-800 dark:text-rose-200"
                 }`}>
                   <div className="flex items-center gap-1.5 font-semibold">
                     <Mountain className="w-4 h-4" /> Kapha

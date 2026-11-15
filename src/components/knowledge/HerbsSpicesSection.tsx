@@ -153,7 +153,7 @@ export const HerbsSpicesSection: React.FC = () => {
                 </h4>
                 <ul className="space-y-1.5 text-xs text-muted-foreground">
                   {selectedHerb.homeRemedies.map((remedy, idx) => (
-                    <li key={idx} className="p-2.5 rounded-lg bg-secondary/5 border border-secondary/20 text-foreground/90">
+                    <li key={idx} className="p-2.5 rounded-lg bg-muted/40 border border-border/60 text-foreground/90">
                       • {remedy}
                     </li>
                   ))}

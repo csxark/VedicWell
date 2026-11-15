@@ -37,7 +37,7 @@ const vataFoodGuide = {
   accentColor: "text-sky-600 dark:text-sky-400",
   textColor: "text-sky-600 dark:text-sky-400",
   borderColor: "border-sky-500/30 dark:border-sky-700/30",
-  bgColor: "bg-sky-500/10 dark:bg-sky-900/20",
+  bgColor: "bg-sky-500/10 dark:bg-card",
   dietaryEmphasis: "Warm, nourishing, moist, grounding, and appropriately cooked foods with healthy fats.",
   traditionalRationale: [
     "Vata is defined by the qualities of Dry, Cold, Light, Subtle, Mobile, Clear, and Rough. According to the Ayurvedic principle 'like increases like; opposites create balance', Vata is calmed by foods with the opposite qualities: Warm, Moist, Nourishing, and Stable.",
@@ -103,7 +103,7 @@ const pittaFoodGuide = {
   accentColor: "text-orange-600 dark:text-orange-400",
   textColor: "text-orange-600 dark:text-orange-400",
   borderColor: "border-orange-500/30 dark:border-orange-800/30",
-  bgColor: "bg-orange-500/10 dark:bg-orange-900/20",
+  bgColor: "bg-orange-500/10 dark:bg-card",
   dietaryEmphasis: "Cooling, refreshing, moderately nourishing, and less intensely spiced foods with sweet, bitter, and astringent tastes.",
   traditionalRationale:
     [
@@ -171,7 +171,7 @@ const kaphaFoodGuide = {
   accentColor: "text-emerald-600 dark:text-emerald-400",
   textColor: "text-emerald-600 dark:text-emerald-400",
   borderColor: "border-emerald-500/30 dark:border-emerald-800/30",
-  bgColor: "bg-emerald-500/10 dark:bg-emerald-900/20",
+  bgColor: "bg-emerald-500/10 dark:bg-card",
   dietaryEmphasis: "Lighter, warm, varied, appropriately dry, and moderately spiced foods with pungent, bitter, and astringent tastes.",
   traditionalRationale:
     [

@@ -68,7 +68,7 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
           icon: Wind,
           color: "text-sky-600 dark:text-sky-400",
           border: "border-sky-500/30 dark:border-sky-700/30",
-          bg: "bg-sky-500/10 dark:bg-sky-900/20",
+          bg: "bg-sky-500/10 dark:bg-card",
         };
       case "pitta":
         return {
@@ -76,7 +76,7 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
           icon: Flame,
           color: "text-orange-600 dark:text-orange-400",
           border: "border-orange-500/30 dark:border-orange-800/30",
-          bg: "bg-orange-500/10 dark:bg-orange-900/20",
+          bg: "bg-orange-500/10 dark:bg-card",
         };
       case "kapha":
         return {
@@ -84,7 +84,7 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
           icon: Mountain,
           color: "text-emerald-600 dark:text-emerald-400",
           border: "border-emerald-500/30 dark:border-emerald-800/30",
-          bg: "bg-emerald-500/10 dark:bg-emerald-900/20",
+          bg: "bg-emerald-500/10 dark:bg-card",
         };
       default:
         return null;
