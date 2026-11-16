@@ -600,12 +600,12 @@ const Profile = () => {
                         Email Verification
                       </CardTitle>
                       {user?.email_confirmed_at ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 dark:bg-card border border-emerald-500/20 dark:border-emerald-700/30">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Verified
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-300 dark:bg-card border border-amber-500/20 dark:border-amber-700/30">
                           <AlertCircle className="w-3.5 h-3.5" />
                           Unverified
                         </span>
@@ -619,7 +619,7 @@ const Profile = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {!user?.email_confirmed_at && (
-                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 leading-relaxed space-y-2">
+                      <div className="p-4 rounded-xl bg-amber-500/10 dark:bg-card border border-amber-500/20 dark:border-amber-700/30 text-xs text-amber-800 dark:text-amber-300 leading-relaxed space-y-2">
                         <p>
                           A confirmation link was sent to <strong>{user?.email}</strong>. Clicking it confirms your identity and enables account recovery if you ever forget your password.
                         </p>

@@ -94,8 +94,8 @@ export const SixTastesSection: React.FC = () => {
                 {/* Vata */}
                 <div className={`p-3 rounded-lg border flex items-center justify-between gap-2 ${
                   currentTaste.doshaImpact.vata === "pacifies"
-                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
-                    : "bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-200"
+                    ? "bg-emerald-500/10 dark:bg-card border-emerald-500/30 dark:border-emerald-700/30 text-emerald-800 dark:text-emerald-200"
+                    : "bg-rose-500/10 dark:bg-card border-rose-500/30 dark:border-rose-700/30 text-rose-800 dark:text-rose-200"
                 }`}>
                   <div className="flex items-center gap-1.5 font-semibold">
                     <Wind className="w-4 h-4" /> Vata
@@ -108,8 +108,8 @@ export const SixTastesSection: React.FC = () => {
                 {/* Pitta */}
                 <div className={`p-3 rounded-lg border flex items-center justify-between gap-2 ${
                   currentTaste.doshaImpact.pitta === "pacifies"
-                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
-                    : "bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-200"
+                    ? "bg-emerald-500/10 dark:bg-card border-emerald-500/30 dark:border-emerald-700/30 text-emerald-800 dark:text-emerald-200"
+                    : "bg-rose-500/10 dark:bg-card border-rose-500/30 dark:border-rose-700/30 text-rose-800 dark:text-rose-200"
                 }`}>
                   <div className="flex items-center gap-1.5 font-semibold">
                     <Flame className="w-4 h-4" /> Pitta
@@ -122,8 +122,8 @@ export const SixTastesSection: React.FC = () => {
                 {/* Kapha */}
                 <div className={`p-3 rounded-lg border flex items-center justify-between gap-2 ${
                   currentTaste.doshaImpact.kapha === "pacifies"
-                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
-                    : "bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-200"
+                    ? "bg-emerald-500/10 dark:bg-card border-emerald-500/30 dark:border-emerald-700/30 text-emerald-800 dark:text-emerald-200"
+                    : "bg-rose-500/10 dark:bg-card border-rose-500/30 dark:border-rose-700/30 text-rose-800 dark:text-rose-200"
                 }`}>
                   <div className="flex items-center gap-1.5 font-semibold">
                     <Mountain className="w-4 h-4" /> Kapha
@@ -157,8 +157,8 @@ export const SixTastesSection: React.FC = () => {
             </div>
 
             {/* Overconsumption Warning */}
-            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+            <div className="p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-900/20 border border-amber-500/20 dark:border-amber-700/30 text-xs text-amber-700 dark:text-amber-300 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
               <div>
                 <strong>Consequences of Overconsumption: </strong>
                 {currentTaste.overconsumptionEffect}
@@ -185,9 +185,9 @@ export const SixTastesSection: React.FC = () => {
               <tr>
                 <th className="p-3">Taste (Rasa)</th>
                 <th className="p-3">Elements</th>
-                <th className="p-3 text-sky-700 dark:text-sky-300">Vata Action</th>
-                <th className="p-3 text-orange-700 dark:text-orange-300">Pitta Action</th>
-                <th className="p-3 text-emerald-700 dark:text-emerald-300">Kapha Action</th>
+                <th className="p-3 text-sky-600 dark:text-sky-400">Vata Action</th>
+                <th className="p-3 text-orange-600 dark:text-orange-400">Pitta Action</th>
+                <th className="p-3 text-emerald-600 dark:text-emerald-400">Kapha Action</th>
                 <th className="p-3">Primary Qualities</th>
               </tr>
             </thead>
@@ -197,17 +197,17 @@ export const SixTastesSection: React.FC = () => {
                   <td className="p-3 font-semibold text-foreground">{t.taste}</td>
                   <td className="p-3 text-muted-foreground">{t.elements}</td>
                   <td className="p-3 font-medium">
-                    <span className={t.doshaImpact.vata === "pacifies" ? "text-emerald-600 font-bold" : "text-rose-600 font-bold"}>
+                    <span className={t.doshaImpact.vata === "pacifies" ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-rose-600 dark:text-rose-400 font-bold"}>
                       {t.doshaImpact.vata === "pacifies" ? "↓ Pacifies" : "↑ Increases"}
                     </span>
                   </td>
                   <td className="p-3 font-medium">
-                    <span className={t.doshaImpact.pitta === "pacifies" ? "text-emerald-600 font-bold" : "text-rose-600 font-bold"}>
+                    <span className={t.doshaImpact.pitta === "pacifies" ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-rose-600 dark:text-rose-400 font-bold"}>
                       {t.doshaImpact.pitta === "pacifies" ? "↓ Pacifies" : "↑ Increases"}
                     </span>
                   </td>
                   <td className="p-3 font-medium">
-                    <span className={t.doshaImpact.kapha === "pacifies" ? "text-emerald-600 font-bold" : "text-rose-600 font-bold"}>
+                    <span className={t.doshaImpact.kapha === "pacifies" ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-rose-600 dark:text-rose-400 font-bold"}>
                       {t.doshaImpact.kapha === "pacifies" ? "↓ Pacifies" : "↑ Increases"}
                     </span>
                   </td>

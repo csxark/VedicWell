@@ -67,24 +67,24 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
           name: "Vata",
           icon: Wind,
           color: "text-sky-600 dark:text-sky-400",
-          border: "border-sky-500/30",
-          bg: "bg-sky-500/10",
+          border: "border-sky-500/30 dark:border-sky-700/30",
+          bg: "bg-sky-500/10 dark:bg-card",
         };
       case "pitta":
         return {
           name: "Pitta",
           icon: Flame,
           color: "text-orange-600 dark:text-orange-400",
-          border: "border-orange-500/30",
-          bg: "bg-orange-500/10",
+          border: "border-orange-500/30 dark:border-orange-800/30",
+          bg: "bg-orange-500/10 dark:bg-card",
         };
       case "kapha":
         return {
           name: "Kapha",
           icon: Mountain,
           color: "text-emerald-600 dark:text-emerald-400",
-          border: "border-emerald-500/30",
-          bg: "bg-emerald-500/10",
+          border: "border-emerald-500/30 dark:border-emerald-800/30",
+          bg: "bg-emerald-500/10 dark:bg-card",
         };
       default:
         return null;
@@ -135,8 +135,8 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
           {hasAssessment && userDosha && currentTheme ? (
             <div className={`p-4 md:p-5 rounded-2xl border ${currentTheme.border} ${currentTheme.bg} backdrop-blur-sm shadow-sm transition-all flex flex-col md:flex-row items-center justify-between gap-4`}>
               <div className="flex items-center gap-3.5 text-left w-full md:w-auto">
-                <div className={`w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center shrink-0 ${currentTheme.color}`}>
-                  <currentTheme.icon className="w-6 h-6" />
+                <div className={`w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center shrink-0 ${currentTheme.bg} border border-border/60`}>
+                  <currentTheme.icon className={`w-6 h-6 ${currentTheme.color}`} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -169,7 +169,7 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
               </div>
             </div>
           ) : (
-            <div className="p-4 md:p-5 rounded-2xl border border-secondary/30 bg-gradient-to-r from-secondary/10 via-card to-accent/10 backdrop-blur-sm shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-4 md:p-5 rounded-2xl border border-secondary/30 bg-secondary/5 dark:bg-secondary/10 backdrop-blur-sm shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 text-left">
                 <LotusIcon className="w-10 h-10 text-secondary shrink-0 hidden sm:block" />
                 <div>
@@ -181,7 +181,7 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
                   </p>
                 </div>
               </div>
-              <Button size="sm" asChild className="bg-secondary hover:bg-secondary/90 text-white shadow-sm shrink-0 gap-1.5 text-xs">
+              <Button size="sm" asChild className="bg-secondary hover:bg-secondary text-secondary-foreground shadow-sm shrink-0 gap-1.5 text-xs">
                 <Link to="/assessment">
                   Take Dosha Assessment
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -202,7 +202,7 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
             <Search className="w-5 h-5 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />
             <Input
               type="text"
-              placeholder="Search across 40+ foods, recipes, spices, articles (e.g. Turmeric, Khichdi, Pitta cooling, Agni)..."
+              placeholder="Search for a food, such as rice, wheat or barley..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-12 pr-10 py-6 text-sm md:text-base rounded-2xl bg-card/80 border-border/80 shadow-md backdrop-blur focus-visible:ring-secondary"
@@ -233,7 +233,7 @@ export const KnowledgeHero: React.FC<KnowledgeHeroProps> = ({
                 onClick={() => onSectionClick(sec.id)}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
                   isActive
-                    ? "bg-secondary text-white shadow-sm scale-105"
+                    ? "bg-secondary text-secondary-foreground shadow-sm scale-105"
                     : "bg-card/70 hover:bg-card border border-border/60 text-muted-foreground hover:text-foreground"
                 }`}
               >

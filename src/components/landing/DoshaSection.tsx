@@ -34,7 +34,7 @@ const doshas = [
 
 export const DoshaSection = () => {
   return (
-    <section className="py-24 bg-forest relative overflow-hidden">
+    <section className="py-24 bg-forest dark:bg-background relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 mandala-bg opacity-20" />
       
@@ -90,7 +90,7 @@ export const DoshaSection = () => {
                   {dosha.traits.map((trait) => (
                     <span 
                       key={trait}
-                      className={`${dosha.bgColor} ${dosha.textColor} px-3 py-1 rounded-full text-sm`}
+                      className={`${dosha.bgColor} ${dosha.textColor} px-3 py-1 rounded-full text-sm dark:bg-card dark:border-border/40`}
                     >
                       {trait}
                     </span>

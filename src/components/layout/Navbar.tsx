@@ -73,12 +73,12 @@ export const Navbar = () => {
       transition={{ duration: 0.5 }}
     >
       {isUnverified && !dismissBanner && (
-        <div className="bg-amber-500/15 border-b border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs px-4 py-1.5 flex items-center justify-between backdrop-blur-md">
+        <div className="bg-amber-500/10 dark:bg-amber-900/20 border-b border-amber-500/20 dark:border-amber-700/30 text-amber-700 dark:text-amber-400 text-xs px-4 py-1.5 flex items-center justify-between backdrop-blur-md">
           <div className="container mx-auto flex items-center justify-center gap-2 text-center">
             <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
             <span>
               Your email is unverified.{" "}
-              <Link to="/profile" className="font-semibold underline hover:opacity-80">
+              <Link to="/profile" className="font-semibold underline hover:opacity-80 text-amber-600 dark:text-amber-300">
                 Verify now in Settings →
               </Link>
             </span>
@@ -88,9 +88,9 @@ export const Navbar = () => {
               setDismissBanner(true);
               try {
                 sessionStorage.setItem("dismiss_unverified_banner", "true");
-              } catch {}
+              } catch { /* ignore */ }
             }}
-            className="p-1 hover:opacity-70 text-amber-700 dark:text-amber-300 ml-2"
+            className="p-1 hover:opacity-70 text-amber-600 dark:text-amber-400 ml-2"
             aria-label="Dismiss banner"
           >
             <X className="w-3.5 h-3.5" />

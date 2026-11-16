@@ -40,10 +40,10 @@ const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const mealTypes = ["breakfast", "lunch", "dinner", "snack"] as const;
 
 const doshaColors = {
-  vata: "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30",
-  pitta: "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/30",
-  kapha: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
-  tridosha: "bg-accent/10 text-accent-foreground border-accent/30",
+  vata: "bg-sky-500/10 text-sky-700 dark:text-sky-300 dark:bg-card border-sky-500/30 dark:border-sky-700/30",
+  pitta: "bg-orange-500/10 text-orange-700 dark:text-orange-300 dark:bg-card border-orange-500/30 dark:border-orange-800/30",
+  kapha: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 dark:bg-card border-emerald-500/30 dark:border-emerald-700/30",
+  tridosha: "bg-accent/10 text-accent-foreground dark:bg-card border-accent/30 dark:border-border/40",
 };
 
 const Nutrition = () => {

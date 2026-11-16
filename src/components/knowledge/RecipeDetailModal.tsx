@@ -71,7 +71,7 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
         {/* Banner */}
-        <div className="bg-gradient-to-r from-emerald-800 via-forest to-amber-900 text-white p-6 relative">
+        <div className="bg-gradient-to-r from-[#2d241c] via-[#4a3224] to-[#2d241c] text-white p-6 relative">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -87,7 +87,7 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                 {recipe.title}
               </DialogTitle>
               {recipe.sanskritTitle && (
-                <DialogDescription className="text-emerald-100 font-serif italic text-sm">
+                <DialogDescription className="text-amber-200 font-serif italic text-sm">
                   {recipe.sanskritTitle}
                 </DialogDescription>
               )}

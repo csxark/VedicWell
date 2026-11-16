@@ -303,7 +303,7 @@ export function SymptomChecker() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
-                    <Leaf className="w-5 h-5 text-forest" />
+                    <Leaf className="w-5 h-5 text-foreground" />
                     Ayurvedic Recommendations
                   </CardTitle>
                   <Button
@@ -345,7 +345,7 @@ export function SymptomChecker() {
                         ),
                         h2: ({ children }) => (
                           <h2 className="text-lg font-semibold text-foreground mt-5 mb-2 flex items-center gap-2">
-                            <Leaf className="w-4 h-4 text-forest" />
+                            <Leaf className="w-4 h-4 text-foreground" />
                             {children}
                           </h2>
                         ),

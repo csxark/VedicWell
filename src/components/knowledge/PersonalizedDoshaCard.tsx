@@ -33,7 +33,7 @@ const personalizedSummaries = {
     icon: Wind,
     color: "from-sky-500 to-indigo-600",
     textColor: "text-sky-600 dark:text-sky-400",
-    bgTint: "bg-sky-500/10 border-sky-500/30",
+    bgTint: "bg-sky-500/10 dark:bg-card border-sky-500/30 dark:border-sky-700/30",
     favoredFoods: ["Basmati rice", "Sweet potatoes", "Ghee", "Warm moong dal", "Sesame oil", "Cooked carrots"],
     foodsToModerate: ["Raw salads", "Iced drinks", "Dry crackers", "Excessive caffeine"],
     suggestedRecipeId: "vata-moong-khichdi",
@@ -46,7 +46,7 @@ const personalizedSummaries = {
     icon: Flame,
     color: "from-orange-500 to-amber-600",
     textColor: "text-orange-600 dark:text-orange-400",
-    bgTint: "bg-orange-500/10 border-orange-500/30",
+    bgTint: "bg-orange-500/10 dark:bg-card border-orange-500/30 dark:border-orange-800/30",
     favoredFoods: ["Cucumber", "Coconut", "Sweet apples", "Bottle gourd (Lauki)", "Ghee", "Basmati rice"],
     foodsToModerate: ["Chilies & hot peppers", "Sour pickles", "Deep-fried foods", "Excessive alcohol"],
     suggestedRecipeId: "pitta-cooling-khichdi",
@@ -59,7 +59,7 @@ const personalizedSummaries = {
     icon: Mountain,
     color: "from-emerald-600 to-teal-700",
     textColor: "text-emerald-600 dark:text-emerald-400",
-    bgTint: "bg-emerald-500/10 border-emerald-500/30",
+    bgTint: "bg-emerald-500/10 dark:bg-card border-emerald-500/30 dark:border-emerald-700/30",
     favoredFoods: ["Barley (Yava)", "Foxtail millet", "Ginger", "Bitter gourd", "Yellow moong dal", "Mustard seeds"],
     foodsToModerate: ["Heavy cold dairy", "Deep-fried snacks", "Excess sweets", "Late night dinners"],
     suggestedRecipeId: "kapha-millet-khichdi",
@@ -145,28 +145,28 @@ export const PersonalizedDoshaCard: React.FC<PersonalizedDoshaCardProps> = ({
 
           {/* Quick Favored & Moderated Chips */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div className="p-3.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-500/25">
+            <div className="p-3.5 rounded-xl bg-emerald-50/50 dark:bg-card border border-emerald-500/25 dark:border-emerald-700/30">
               <span className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 Top Ingredients to Favor for You:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {summary.favoredFoods.map((f, i) => (
-                  <Badge key={i} variant="outline" className="bg-background/80 text-foreground border-emerald-500/30 text-xs">
+                  <Badge key={i} variant="outline" className="bg-background/80 text-foreground border-emerald-500/20 dark:border-emerald-700/30 text-xs">
                     {f}
                   </Badge>
                 ))}
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-500/25">
+            <div className="p-3.5 rounded-xl bg-rose-50/50 dark:bg-rose-900/20 border border-rose-500/25 dark:border-rose-700/30">
               <span className="font-semibold text-rose-800 dark:text-rose-300 flex items-center gap-1.5 mb-2">
-                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                 Ingredients to Moderate for You:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {summary.foodsToModerate.map((f, i) => (
-                  <Badge key={i} variant="outline" className="bg-background/80 text-foreground border-rose-500/30 text-xs">
+                  <Badge key={i} variant="outline" className="bg-background/80 text-foreground border-rose-500/20 dark:border-rose-700/30 text-xs">
                     {f}
                   </Badge>
                 ))}
